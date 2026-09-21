@@ -14,4 +14,4 @@ Current baseline:
 - smart early RNG and progression unlocks
 - approved current visual direction: warm tabletop, cream physical board, graphite Next tray, approved cap sprite, decorative ArsCorp cap
 
-The gameplay cap sprite is temporarily loaded from the archived V1 repository so the V2 playtest can use the approved artwork immediately. The old repository remains untouched as an archive.
+The V2 build is fully self-contained: its interface, game logic, and cap styling are served from this repository only.
