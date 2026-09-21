@@ -9,10 +9,10 @@
   ];
   const UNLOCK_THRESHOLDS = [0,0,0,0,60,140,240,360,500,680,900,1180,1500,1860,2280,2760];
   const SCORE_PER_CAP = 10;
-  const CAP_COLORS = ['#e7524b','#3b83d5','#f0b33a','#59a46f','#8651a8','#42a9b6','#ef7e3b','#d05279'];
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const $ = sel => document.querySelector(sel);
   const $$ = sel => [...document.querySelectorAll(sel)];
+  const capPx = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cap-size')) || 112;
 
   const state = {
     board: Array.from({ length: R.CELLS }, () => []),
@@ -48,11 +48,14 @@
     } catch (_) {}
   }
 
+  function spritePosition(brand) {
+    const col = brand % 5, row = Math.floor(brand / 5);
+    return `${col*25}% ${row*(100/3)}%`;
+  }
   function makeCap(brand, cls='') {
     const e = document.createElement('div');
     e.className = `cap ${cls}`.trim(); e.dataset.brand = brand;
-    e.dataset.label = String(BRANDS[brand] || 'CAP').replace('Liquid Dead','DEAD').slice(0,9);
-    e.style.setProperty('--cap-color', CAP_COLORS[brand % CAP_COLORS.length]);
+    e.style.backgroundPosition = spritePosition(brand);
     return e;
   }
   function stackEl(stack, compact=false) {
@@ -147,7 +150,7 @@
 
   function rectCenter(el) { const r=el.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2}; }
   async function flyCapBetween(brand, from, to, duration=230, scaleEnd=.92) {
-    const cap=makeCap(brand,'flying'); cap.style.left=`${from.x-31}px`; cap.style.top=`${from.y-31}px`; document.body.appendChild(cap);
+    const cap=makeCap(brand,'flying'), half=capPx()/2; cap.style.left=`${from.x-half}px`; cap.style.top=`${from.y-half}px`; document.body.appendChild(cap);
     const dx=to.x-from.x, dy=to.y-from.y;
     const anim=cap.animate([
       { transform:'translate(0,0) scale(1)', opacity:1 },
@@ -162,17 +165,21 @@
     const brand=R.top(state.board[target]);
     for (const src of comp) {
       if (src===target) continue;
-      const n=R.topRun(state.board[src]);
+      const n=R.topRun(state.board[src]), flights=[];
       for (let k=0;k<n;k++) {
         const srcCell=$(`.cell[data-i="${src}"]`), dstCell=$(`.cell[data-i="${target}"]`);
         const from=rectCenter(srcCell), to=rectCenter(dstCell);
         state.board[src].pop(); renderBoard();
-        flyCapBetween(brand,from,to,230,.96).then(()=>{ state.board[target].push(brand); renderBoard(); maybeBeep(460,.025,.018); });
-        await sleep(100);
+        const p=flyCapBetween(brand,from,to,250,.97).then(()=>{
+          state.board[target].push(brand); renderBoard(); maybeBeep(460,.025,.018);
+        });
+        flights.push(p);
+        if (k<n-1) await sleep(105);
       }
-      await sleep(150);
+      await Promise.all(flights);
+      await sleep(115);
     }
-    await sleep(180);
+    await sleep(80);
   }
 
   async function clearTopRun(idx) {
@@ -182,21 +189,21 @@
     for (let k=0;k<count;k++) {
       const cell=$(`.cell[data-i="${idx}"]`), from=rectCenter(cell);
       state.board[idx].pop(); renderBoard();
-      const cap=makeCap(brand,'v07-fly'); cap.style.left=`${from.x-31}px`; cap.style.top=`${from.y-31}px`; document.body.appendChild(cap);
+      const cap=makeCap(brand,'v07-fly'), half=capPx()/2; cap.style.left=`${from.x-half}px`; cap.style.top=`${from.y-half}px`; document.body.appendChild(cap);
       const dx=scoreTarget.x-from.x, dy=scoreTarget.y-from.y;
       const anim=cap.animate([
         {transform:'translate(0,0) scale(1)',opacity:1},
         {transform:`translate(${dx*.58}px,${dy*.58}px) scale(.64)`,opacity:.96,offset:.58},
         {transform:`translate(${dx}px,${dy}px) scale(.2)`,opacity:.28}
-      ],{duration:420,easing:'cubic-bezier(.22,.72,.18,1)',fill:'forwards'});
+      ],{duration:560,easing:'cubic-bezier(.22,.72,.18,1)',fill:'forwards'});
       anim.finished.catch(()=>{}).then(()=>{
         cap.remove(); state.score += SCORE_PER_CAP; state.cleared += 1;
         if (state.score>state.best) { state.best=state.score; localStorage.setItem('cap-stack-sort-v2-best',String(state.best)); }
         renderHud(); $('#score-card')?.classList.add('score-hit'); setTimeout(()=>$('#score-card')?.classList.remove('score-hit'),170); maybeBeep(650,.025,.015);
       });
-      await sleep(95);
+      await sleep(108);
     }
-    await sleep(430);
+    await sleep(540);
     maybeUnlock();
     return count;
   }
