@@ -9,6 +9,7 @@
   ];
   const UNLOCK_THRESHOLDS = [0,0,0,0,60,140,240,360,500,680,900,1180,1500,1860,2280,2760];
   const SCORE_PER_CAP = 10;
+  const CAP_COLORS = ['#e7524b','#3b83d5','#f0b33a','#59a46f','#8651a8','#42a9b6','#ef7e3b','#d05279'];
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const $ = sel => document.querySelector(sel);
   const $$ = sel => [...document.querySelectorAll(sel)];
@@ -47,14 +48,11 @@
     } catch (_) {}
   }
 
-  function spritePosition(brand) {
-    const col = brand % 5, row = Math.floor(brand / 5);
-    return `${col*25}% ${row*(100/3)}%`;
-  }
   function makeCap(brand, cls='') {
     const e = document.createElement('div');
     e.className = `cap ${cls}`.trim(); e.dataset.brand = brand;
-    e.style.backgroundPosition = spritePosition(brand);
+    e.dataset.label = String(BRANDS[brand] || 'CAP').replace('Liquid Dead','DEAD').slice(0,9);
+    e.style.setProperty('--cap-color', CAP_COLORS[brand % CAP_COLORS.length]);
     return e;
   }
   function stackEl(stack, compact=false) {
