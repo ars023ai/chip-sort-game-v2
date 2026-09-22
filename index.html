@@ -1,115 +1,12 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#d9ad7e">
-<meta name="description" content="Cap Stack Sort V2 reference-matched visual playtest">
-<title>Cap Stack Sort — Reference Design Pass 3</title>
-<style>
-:root{
-  --cap:88px;
-  --cell-h:92px;
-  --gap:7px;
-  --ink:#3b2c21;
-  --sprite:url('assets/master-caps.webp?v=20260922c');
-  --arscap:none;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;min-height:100%;overscroll-behavior:none}
-body{
-  min-height:100svh;overflow:hidden;
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
-  color:var(--ink);user-select:none;-webkit-user-select:none;
-  background:
-    radial-gradient(circle at 51% 11%,rgba(255,241,211,.58) 0 8%,transparent 27%),
-    repeating-linear-gradient(0deg,rgba(255,255,255,0) 0 72px,rgba(129,88,49,.14) 73px 75px,rgba(255,245,226,.12) 76px 78px),
-    linear-gradient(108deg,#c89563 0%,#edc28f 34%,#d6a16d 68%,#b97d4e 100%);
-}
-body::before,body::after{
-  content:"";position:fixed;z-index:0;pointer-events:none;width:320px;height:250px;opacity:.98;
-  filter:drop-shadow(0 18px 18px rgba(41,28,17,.18));
-  background:
-    radial-gradient(ellipse at 22% 46%,#2e5a22 0 25%,transparent 26%),
-    radial-gradient(ellipse at 60% 30%,#4e7c31 0 27%,transparent 28%),
-    radial-gradient(ellipse at 78% 72%,#214516 0 24%,transparent 25%);
-}
-body::before{left:-105px;top:-105px;transform:rotate(-18deg)}
-body::after{right:-120px;bottom:-120px;transform:rotate(156deg)}
-button{font:inherit}
-.scene{
-  position:relative;z-index:2;width:min(1536px,100vw);height:100svh;margin:auto;
-  display:grid;grid-template-columns:minmax(250px,1fr) minmax(610px,740px) minmax(250px,1fr);
-  gap:22px;align-items:center;padding:14px 22px;
-}
-.side{position:relative;height:min(92svh,940px);min-width:0}
-.brand-block{position:absolute;left:0;top:18px;transform:rotate(-5deg)}
-.logo{position:relative;font-weight:1000;line-height:.77;letter-spacing:-.075em;font-size:clamp(64px,5vw,100px);color:#f7f7f4;text-shadow:0 4px 0 #28577e,0 8px 0 #143d5c,0 13px 18px rgba(52,33,20,.35)}
-.logo b{display:block;color:#ffc92f}.logo small{display:block;width:max-content;margin:.2em 0 0 1.26em;padding:.13em .42em;border:4px solid #315875;border-radius:10px;background:#e9edef;color:#243e53;font-size:.31em;letter-spacing:.04em;text-shadow:none;transform:rotate(.8deg);box-shadow:0 5px 10px #0002}
-.logo::after{content:"♛";position:absolute;right:20px;top:-27px;color:#ffcf35;font-size:.35em;text-shadow:0 3px 0 #bf8815,0 6px 8px #0003;transform:rotate(6deg)}
-.tag{margin:18px 0 0 8px;font-size:14px;letter-spacing:.075em;font-weight:1000;color:#3f3328}
-.scribble{position:absolute;left:10px;top:265px;width:255px;font:italic clamp(28px,2.5vw,45px)/1.12 Georgia,serif;color:#a8764b;transform:rotate(-6deg);text-align:center;opacity:.8}
-.goodvibes{position:absolute;left:58px;bottom:220px;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 32% 26%,#65676a,#1b1d1f 55%,#080808);border:8px ridge #121212;color:#f0f0ee;box-shadow:0 12px 17px rgba(81,54,34,.31),inset 0 2px 4px #fff4;font-weight:1000;text-align:center;line-height:1.02;transform:rotate(-5deg)}
-.opener{position:absolute;left:2px;bottom:18px;width:96px;height:205px;border-radius:24px;background:linear-gradient(145deg,#efede8,#9ea4a7);border:2px solid #777d80;box-shadow:0 13px 20px rgba(81,55,34,.28);transform:rotate(-14deg);display:grid;place-items:center;text-align:center;font-weight:1000;line-height:1.18;color:#62686b}
-.opener::before{content:"";position:absolute;top:18px;left:50%;transform:translateX(-50%);width:58px;height:38px;border:9px solid #7d8385;border-bottom-width:12px;border-radius:18px 18px 12px 12px;background:rgba(255,255,255,.16)}
-.loose-cola{position:absolute;left:-17px;bottom:-8px;width:94px;height:94px;border-radius:50%;background-image:var(--sprite);background-size:500% 400%;background-position:0% 0%;filter:drop-shadow(0 9px 9px rgba(68,38,22,.42));transform:rotate(-9deg)}
-.game-shell{width:100%;max-width:740px;margin:auto;position:relative}
-.hud{display:grid;grid-template-columns:1.14fr .9fr .82fr .95fr;gap:8px;margin-bottom:11px;padding:0 4px}
-.hud-card{height:74px;border-radius:10px;background:linear-gradient(145deg,#464a4b,#2b2f30);border:1px solid #8e908d;box-shadow:0 7px 12px rgba(82,56,35,.21),inset 0 1px #ffffff35;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.hud-card span{font-size:11px;letter-spacing:.12em;color:#ddd9d0;font-weight:950}.hud-card b{font-size:25px;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums}.hud-card.score b{font-size:35px;color:#ffe044}.hud-card.combo b{color:#ff951f}.score-hit{animation:scoreHit .17s cubic-bezier(.2,.8,.2,1)}
-.board{position:relative;padding:15px 14px 16px;border-radius:30px;background:linear-gradient(145deg,#f1dec4 0%,#e7d1b4 49%,#d7bc9a 100%);border:2px solid #f9ecd9;box-shadow:0 15px 0 rgba(114,77,47,.20),0 22px 28px rgba(71,42,22,.20),inset 0 0 0 2px #bea17d,inset 0 0 0 8px #e9d5b9,inset 0 2px 0 rgba(255,255,255,.72)}
-.board::before{content:"";position:absolute;inset:8px;border-radius:23px;border:1px solid rgba(132,99,64,.19);box-shadow:inset 0 1px 0 rgba(255,255,255,.72);pointer-events:none}
-.grid{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(6,var(--cell-h));gap:var(--gap);position:relative;z-index:2}
-.cell{appearance:none;position:relative;min-width:0;padding:0;border-radius:13px;background:linear-gradient(145deg,#ddc8a9 0%,#ead8bd 66%,#f0dfc8 100%);border:1px solid #ebdac4;box-shadow:inset 0 2px 4px rgba(108,82,54,.16),0 1px 0 rgba(255,255,255,.74);overflow:visible;transition:.14s border-color,.14s box-shadow,.14s transform}
-.cell::after{content:"";position:absolute;inset:5px;border-radius:10px;border:1px solid rgba(121,91,57,.08);pointer-events:none}.cell.target{border-color:#daa64c;box-shadow:inset 0 1px 3px #8d765438,0 0 0 2px #f9ca70bb,0 0 20px #ffc75d66}.cell.bad{animation:bad .32s ease}.cell.pulse8{box-shadow:inset 0 1px 3px #8d765438,0 0 0 1px #f0bd596f,0 0 14px #eec46d55}.cell.pulse9{box-shadow:inset 0 1px 3px #8d765438,0 0 0 2px #f4c45b9c,0 0 24px #ffd46d8a;animation:near .9s ease-in-out infinite}.cell.charged{box-shadow:inset 0 1px 3px #8d765438,0 0 0 2px #ffe2a6d9,0 0 29px #ffc95d92;animation:charge .34s ease-in-out infinite alternate}
-.stack{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:var(--cap);height:calc(var(--cap) + 55px);pointer-events:none}.cap{position:absolute;width:var(--cap);height:var(--cap);left:50%;margin-left:calc(var(--cap)/-2);border-radius:50%;background-image:var(--sprite);background-size:500% 400%;background-repeat:no-repeat;filter:drop-shadow(0 5px 3px rgba(44,27,16,.39));pointer-events:none;will-change:transform}
-.tray-wrap{margin:11px auto 0;width:97%;display:grid;grid-template-columns:1fr 126px;filter:drop-shadow(0 9px 10px rgba(77,48,29,.24))}.tray{height:116px;background:linear-gradient(#45494a,#222627);border:7px solid #cdbca3;border-right-width:4px;border-radius:21px 0 0 21px;box-shadow:inset 0 0 0 2px #f4ebdc,inset 0 8px 18px rgba(255,255,255,.025);display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:6px 10px}.tray-slot{appearance:none;position:relative;border:0;border-right:1px solid #ffffff14;background:transparent;border-radius:11px;cursor:grab;padding:0}.tray-slot:last-child{border-right:0}.tray-slot.selected{background:#ffc55d16;outline:1px solid #e4b367}.tray-slot:active{cursor:grabbing}.tray-slot .stack{bottom:5px}.tray-label{display:grid;place-items:center;background:linear-gradient(145deg,#dbc7a7,#cbb08b);border:1px solid #c3a783;border-radius:0 17px 17px 0;color:#49392c;font-weight:1000;font-size:15px;letter-spacing:.03em;line-height:1.08;text-align:center}.tray-label small{font-size:10px;letter-spacing:.04em;margin-top:7px}
-.note{position:absolute;right:40px;top:65px;width:184px;background:linear-gradient(135deg,#f5e2bf,#dcbd8e);padding:22px 20px;box-shadow:0 13px 20px rgba(96,66,40,.22);transform:rotate(8deg);font:italic 27px/1.27 Georgia,serif;color:#726049;text-align:center}
-.arscap{position:absolute;right:60px;top:330px;width:112px;height:112px;border-radius:50%;background-image:var(--arscap);background-size:cover;background-position:center;background-repeat:no-repeat;filter:drop-shadow(0 12px 12px rgba(61,43,34,.34))}
-.glass{position:absolute;right:-6px;top:385px;width:112px;height:242px;border-radius:18px 18px 36px 36px;background:linear-gradient(90deg,#ffffff52,#ffffff0d 27%,#fff7 72%,#ffffff1a),linear-gradient(#0000 0 27%,#8a4e16aa 28% 100%);border:2px solid #ffffff91;box-shadow:0 14px 18px rgba(83,52,33,.28);transform:rotate(6deg)}.glass::after{content:"";position:absolute;left:14px;right:14px;top:64px;height:9px;border-radius:50%;background:rgba(255,245,224,.45)}
-.coaster{position:absolute;right:4px;bottom:78px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle at 35% 32%,#dcb680,#b67d43 72%);border:2px solid #aa7540;box-shadow:0 11px 18px rgba(91,59,39,.25);display:grid;place-items:center;text-align:center;font-size:25px;line-height:1.25;font-weight:1000;color:#714a28;transform:rotate(-8deg)}
-.settings{position:fixed;right:28px;top:24px;z-index:50;width:56px;height:56px;border-radius:12px;border:1px solid #aaa;background:linear-gradient(#505455,#2e3233);box-shadow:0 6px 13px #3a291e55;color:#ecece9;font-size:29px;cursor:pointer}
-.banner{position:fixed;left:50%;top:12%;z-index:80;transform:translate(-50%,-18px) scale(.94);opacity:0;pointer-events:none;background:linear-gradient(145deg,#40342a,#1f1c19);border:1px solid #c79344;color:#fff2d0;border-radius:18px;padding:12px 22px;box-shadow:0 14px 45px #0006;text-align:center;transition:.23s}.banner.show{opacity:1;transform:translate(-50%,0) scale(1)}.banner small{display:block;color:#f8c75d;font-weight:950;letter-spacing:.18em}.banner b{display:block;font-size:19px;margin-top:4px}
-.overlay{position:fixed;inset:0;z-index:100;background:#211a16c9;backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px}.overlay[hidden]{display:none!important}.modal{width:min(420px,92vw);background:linear-gradient(145deg,#3b3028,#201c19);border:1px solid #786047;color:#f7ead8;border-radius:22px;padding:24px;box-shadow:0 24px 70px #0007}.modal h2{margin:2px 0 8px;font-size:31px}.modal p{color:#cdbda9;line-height:1.5}.result{background:#161412;border-radius:15px;padding:16px;text-align:center;margin:14px 0}.result span,.result small{display:block;color:#c7b7a3;font-size:11px;letter-spacing:.1em}.result b{display:block;font-size:44px;color:#ffd767}.modal-actions{display:grid;gap:8px}.modal button{width:100%;padding:11px;border-radius:12px;font-weight:900}.primary{border:0;background:linear-gradient(#ffd783,#eaaa4f);color:#342416}.secondary{border:1px solid #6d5846;background:transparent;color:#ead9c4}
-.ghost{position:fixed;z-index:120;pointer-events:none;transform:translate(-50%,-70%);filter:drop-shadow(0 10px 8px #0004);opacity:.97}.ghost .stack{position:relative;left:auto;bottom:auto;transform:none}.flying,.v07-fly{position:fixed;z-index:130;pointer-events:none;margin:0;will-change:transform,opacity}.build-badge{position:fixed;left:10px;bottom:8px;z-index:4;font-size:9px;font-weight:900;letter-spacing:.08em;color:#5d432d88}
-@keyframes bad{50%{transform:translateX(4px);border-color:#d95d4d}75%{transform:translateX(-3px)}}@keyframes near{50%{transform:translateY(-1px)}}@keyframes charge{from{transform:translateY(0)}to{transform:translateY(-1px)}}@keyframes scoreHit{0%{transform:scale(1)}42%{transform:scale(1.065)}100%{transform:scale(1)}}
-@media(max-height:860px){:root{--cap:72px;--cell-h:76px;--gap:6px}.scene{grid-template-columns:minmax(220px,1fr) minmax(540px,640px) minmax(220px,1fr);gap:18px}.hud-card{height:61px}.board{padding:12px 11px 13px}.tray{height:98px}.side{height:94svh}.scribble{top:235px}.goodvibes{bottom:205px}.opener{height:175px}.note{top:45px}.arscap{top:300px}.glass{top:350px;height:195px}.coaster{width:180px;height:180px;bottom:60px}}
-@media(max-width:1050px){:root{--cap:58px;--cell-h:64px;--gap:5px}body{overflow:auto}.scene{display:block;width:min(100vw,610px);height:auto;min-height:100svh;padding:6px}.side{display:none}.game-shell{max-width:none}.hud{gap:5px;margin-top:4px}.hud-card{height:60px}.hud-card span{font-size:9px}.hud-card b{font-size:19px}.hud-card.score b{font-size:25px}.board{padding:10px 9px 11px;border-radius:21px}.tray{height:92px}.tray-wrap{grid-template-columns:1fr 100px}.settings{top:8px;right:8px;width:42px;height:42px;font-size:23px}.build-badge{display:none}}
-</style>
-</head>
-<body>
-<button class="settings" id="settings" aria-label="Settings">⚙</button>
-<div class="scene">
-  <aside class="side left-side">
-    <div class="brand-block"><div class="logo">CAP<b>STACK</b><small>SORT</small></div><div class="tag">SAME CAPS. BIGGER COMBOS.</div></div>
-    <div class="scribble">Good<br>Drinks.<br>Better<br>Combos! :)</div>
-    <div class="goodvibes">GOOD<br>VIBES</div>
-    <div class="opener">OPEN<br>MORE<br>FUN</div>
-    <div class="loose-cola" aria-hidden="true"></div>
-  </aside>
-  <main class="game-shell">
-    <header class="hud">
-      <div class="hud-card score" id="score-card"><span>SCORE</span><b id="score">0</b></div>
-      <div class="hud-card"><span>BEST</span><b id="best">0</b></div>
-      <div class="hud-card combo"><span>COMBO</span><b id="combo">—</b></div>
-      <div class="hud-card"><span>TIME</span><b id="time">0:00</b></div>
-    </header>
-    <section class="board"><div class="grid" id="grid" aria-label="5 by 6 game board"></div></section>
-    <section class="tray-wrap"><div class="tray" id="tray"></div><div class="tray-label">NEXT<br>STACKS<small>DRAG<br>OR TAP</small></div></section>
-  </main>
-  <aside class="side right-side">
-    <div class="note">Small<br>Moves.<br>Big<br>Combos!<br>♛</div>
-    <div class="arscap" aria-label="ArsCorp decorative cap"></div>
-    <div class="glass" aria-hidden="true"></div>
-    <div class="coaster">PLAY<br>RELAX<br>REPEAT<br>☺</div>
-  </aside>
-</div>
-<div class="banner" id="banner"><small id="banner-title"></small><b id="banner-text"></b></div>
-<div class="overlay" id="overlay" hidden><section class="modal"><h2 id="modal-title">Settings</h2><div id="modal-body"></div><div class="modal-actions"><button class="primary" id="replay">New game</button><button class="secondary" id="sound-toggle">Sound: On</button><button class="secondary" id="close-modal">Close</button></div></section></div>
-<div class="build-badge">DESIGN PASS 3 · GAMEPLAY LOCKED · 2026-09-22</div>
-<script>
-(async()=>{try{const b64=await fetch('assets/arscorp-cap.webp.b64?v=20260922a',{cache:'no-store'}).then(r=>r.text());document.documentElement.style.setProperty('--arscap',`url("data:image/webp;base64,${b64.trim()}")`)}catch(e){console.warn('decor asset unavailable',e)}})();
-</script>
-<script src="rules.js?v=canonical-20260922b"></script>
-<script src="game.js?v=canonical-20260922c"></script>
-</body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#cfa06f"><meta name="description" content="Cap Stack Sort V2 reference-matched visual playtest"><title>Cap Stack Sort — Reference Match</title><link rel="stylesheet" href="visual-v3.css?v=20260922f"></head><body><div class="viewport"><div class="scene" id="scene"><main class="game-shell"><header class="hud"><div class="hud-card score" id="score-card"><span>SCORE</span><b id="score">0</b></div><div class="hud-card"><span>BEST</span><b id="best">0</b></div><div class="hud-card combo"><span>COMBO</span><b id="combo">—</b></div><div class="hud-card"><span>TIME</span><b id="time">0:00</b></div></header><section class="board"><div class="grid" id="grid" aria-label="5 by 6 game board"></div></section><section class="tray-wrap"><div class="tray" id="tray"></div><div class="tray-label">NEXT<br>STACKS<small>DRAG<br>OR TAP</small></div></section></main><button class="settings" id="settings" aria-label="Settings">Settings</button></div></div><div class="banner" id="banner"><small id="banner-title"></small><b id="banner-text"></b></div><div class="overlay" id="overlay" hidden><section class="modal"><h2 id="modal-title">Settings</h2><div id="modal-body"></div><div class="modal-actions"><button class="primary" id="replay">New game</button><button class="secondary" id="sound-toggle">Sound: On</button><button class="secondary" id="close-modal">Close</button></div></section></div><div class="build-badge">REFERENCE MATCH V3 · EXACT SCENE · GAMEPLAY LOCKED · 2026-09-22</div><script>
+(async()=>{
+  const scene=document.getElementById('scene');
+  try{
+    const urls=Array.from({length:8},(_,i)=>`assets/scene1024-${String(i+1).padStart(2,'0')}.txt?v=20260922e`);
+    const parts=await Promise.all(urls.map(async url=>{const r=await fetch(url,{cache:'force-cache'});if(!r.ok)throw new Error(`${url}: ${r.status}`);return (await r.text()).trim()}));
+    scene.style.backgroundImage=`url("data:image/webp;base64,${parts.join('')}")`;
+  }catch(err){console.error('Reference scene failed to load',err)}
+  scene.classList.add('bg-ready');
+})();
+(()=>{const scene=document.getElementById('scene');const sync=()=>{const w=scene.getBoundingClientRect().width;document.documentElement.style.setProperty('--cap',`${Math.max(52,Math.min(106,w*0.069))}px`)};sync();addEventListener('resize',sync,{passive:true})})();
+</script><script src="rules.js?v=canonical-20260922b"></script><script src="game.js?v=canonical-20260922c"></script></body></html>
