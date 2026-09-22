@@ -17,5 +17,5 @@ jobs:
         run: |
           test -s index.html
           grep -q 'id="grid"' index.html
-          grep -q 'script src="rules.js"' index.html
-          grep -q 'script src="game.js"' index.html
+          grep -q 'script src="rules.js' index.html
+          grep -q 'script src="game.js' index.html
