@@ -1,0 +1,70 @@
+/* Stage 1 visual pass: physical board + tray only. Gameplay DOM and JS untouched. */
+:root{--board-cream:#ead3b3;--board-edge:#c8a27b;--board-shadow:#5d3c26;}
+.game-shell{max-width:790px}
+.board{
+  position:relative;
+  padding:27px 24px 26px;
+  border-radius:38px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,250,238,.78),transparent 38%),
+    linear-gradient(145deg,#f4e3c9 0%,#e6cfaf 40%,#d9bc98 72%,#ecd7ba 100%);
+  border:2px solid #f9eddc;
+  box-shadow:
+    0 16px 0 #b88f67,
+    0 20px 0 rgba(111,72,42,.22),
+    0 34px 44px rgba(75,45,25,.34),
+    inset 0 0 0 2px #c39d75,
+    inset 0 0 0 9px #ead4b6,
+    inset 0 2px 0 rgba(255,255,255,.82),
+    inset 0 -6px 12px rgba(135,92,54,.12);
+}
+.board:before{
+  content:"";position:absolute;inset:11px;border-radius:29px;
+  border:1px solid rgba(111,78,47,.30);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.72),
+    inset 0 -2px 4px rgba(99,67,40,.13),
+    0 1px 0 rgba(255,255,255,.45);
+  pointer-events:none;z-index:1;
+}
+.board:after{
+  content:"";position:absolute;left:18px;right:18px;bottom:-17px;height:22px;
+  border-radius:0 0 27px 27px;
+  background:linear-gradient(180deg,#c69f77 0%,#a87d56 58%,#8f6747 100%);
+  box-shadow:0 11px 18px rgba(70,42,24,.24),inset 0 1px rgba(255,255,255,.22);
+  z-index:-1;pointer-events:none;
+}
+.grid{gap:10px}
+.cell{
+  border-radius:16px;
+  background:linear-gradient(145deg,#e2ccb0 0%,#ebdbc4 58%,#f1e3d1 100%);
+  border:1px solid rgba(255,248,235,.82);
+  box-shadow:
+    inset 0 4px 8px rgba(108,77,48,.18),
+    inset 0 -1px 0 rgba(255,255,255,.65),
+    0 1px 0 rgba(255,255,255,.54),
+    0 2px 4px rgba(84,54,31,.07);
+}
+.cell:after{inset:7px;border-radius:11px;border:1px solid rgba(119,84,52,.11);box-shadow:inset 0 1px 2px rgba(255,255,255,.34)}
+.tray-wrap{
+  width:96%;margin-top:28px;padding:7px;
+  grid-template-columns:1fr 132px;gap:0;
+  border-radius:26px;
+  background:linear-gradient(145deg,#ead7bd,#c7a47e);
+  border:1px solid #f5e7d4;
+  box-shadow:0 12px 18px rgba(73,44,25,.28),inset 0 1px rgba(255,255,255,.62),inset 0 -3px 6px rgba(106,72,44,.12);
+}
+.tray{
+  height:124px;border:0;border-radius:18px 0 0 18px;
+  background:linear-gradient(180deg,#414748 0%,#242829 64%,#191c1d 100%);
+  box-shadow:inset 0 0 0 2px #111718,inset 0 2px 0 rgba(255,255,255,.12),inset 0 10px 18px rgba(255,255,255,.025);
+}
+.tray-label{
+  border:0;border-left:1px solid rgba(109,76,49,.22);border-radius:0 18px 18px 0;
+  background:linear-gradient(145deg,#dfc6a3,#c6a17a);
+  box-shadow:inset 0 1px rgba(255,255,255,.45);
+}
+.cap{filter:drop-shadow(0 6px 4px rgba(44,27,16,.42)) drop-shadow(0 1px 0 rgba(255,255,255,.12))}
+.build-badge:after{content:" · STAGE 1 PHYSICAL BOARD"}
+@media(max-width:1180px){.board{padding:21px 19px 20px;border-radius:32px}.board:after{bottom:-13px;height:18px}.grid{gap:8px}.tray-wrap{margin-top:23px}}
+@media(max-width:980px){.board{padding:14px 12px 13px;border-radius:24px}.board:after{bottom:-9px;height:13px}.grid{gap:5px}.tray-wrap{margin-top:16px;padding:5px;border-radius:20px}}
