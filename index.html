@@ -7,7 +7,7 @@
 <meta name="description" content="Cap Stack Sort V2 canonical playtest">
 <title>Cap Stack Sort — Canonical V2 Playtest</title>
 <style>
-:root{--cap:76px;--cell-h:93px;--gap:7px;--ink:#37291f;--cream:#ead5b7;--dark:#2b2f30;--gold:#ffc632;--sprite:none;--arscap:none}
+:root{--cap:76px;--cell-h:93px;--gap:7px;--ink:#37291f;--cream:#ead5b7;--dark:#2b2f30;--gold:#ffc632;--sprite:url('assets/master-caps.webp?v=20260922c');--arscap:none}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;overscroll-behavior:none}
 body{min-height:100svh;overflow-x:hidden;padding:16px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--ink);user-select:none;-webkit-user-select:none;background:
@@ -87,11 +87,7 @@ button{font:inherit}
 <script>
 (async()=>{
   try{
-    const [sprite64,ars64]=await Promise.all([
-      fetch('assets/cap-sprite-game.webp.b64?v=20260922a',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('sprite '+r.status);return r.text()}),
-      fetch('assets/arscorp-cap.webp.b64?v=20260922a',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('ars '+r.status);return r.text()})
-    ]);
-    document.documentElement.style.setProperty('--sprite',`url("data:image/webp;base64,${sprite64.trim()}")`);
+    const ars64=await fetch('assets/arscorp-cap.webp.b64?v=20260922a',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('ars '+r.status);return r.text()});
     document.documentElement.style.setProperty('--arscap',`url("data:image/webp;base64,${ars64.trim()}")`);
     document.documentElement.dataset.assets='ready';
   }catch(err){
@@ -101,5 +97,5 @@ button{font:inherit}
 })();
 </script>
 <script src="rules.js?v=canonical-20260922b"></script>
-<script src="game.js?v=canonical-20260922b"></script>
+<script src="game.js?v=canonical-20260922c"></script>
 </body></html>
