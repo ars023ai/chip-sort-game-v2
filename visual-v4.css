@@ -20,17 +20,17 @@ button{font:inherit}.scene{position:relative;width:min(1540px,96vw);height:min(1
 /* Reference-matched desktop composition. The raster asset contains only the
    tabletop and peripheral decor; every playable surface remains live HTML. */
 @media(min-width:901px){
-  :root{--cap:clamp(70px,5.85vw,91px);--cell-h:clamp(74px,7.25vh,96px);--gap:7px}
+  :root{--cap:clamp(78px,6.6vw,96px);--cell-h:clamp(90px,10.7vh,104px);--gap:7px}
   html,body{background:#d5a979}
   body:before,.table-light,.foliage{display:none}
   .scene{width:min(100vw,calc(100vh * 1.333333));height:auto;aspect-ratio:4/3;display:block;background:url('assets/tabletop-decor-v1.webp?v=2') center/100% 100% no-repeat;overflow:hidden}
   .side{display:none}
-  .game-shell{position:absolute;left:24.5%;top:1.75%;width:51.1%;height:96.5%;margin:0;display:flex;flex-direction:column;justify-content:flex-start}
-  .hud{height:7.2%;min-height:62px;margin:0 2.9% 1.8%;gap:8px}
+  .game-shell{position:absolute;left:22.8%;top:1.75%;width:54.4%;height:97.2%;margin:0;display:flex;flex-direction:column;justify-content:flex-start}
+  .hud{height:7.2%;min-height:62px;margin:0 3.1% 1.8%;gap:8px}
   .hud-card{height:100%;border-radius:10px}
   .board{flex:0 0 auto;padding:14px 13px 23px;border-radius:34px}
   .board-rim{padding:6px;border-radius:22px}
   .grid{grid-template-rows:repeat(6,var(--cell-h))}
-  .tray-wrap{height:12.1%;min-height:104px;width:94%;margin:13px auto 0;grid-template-columns:1fr 18%}
+  .tray-wrap{height:12.1%;min-height:104px;width:94%;margin:12px auto 0;grid-template-columns:1fr 18%}
   .settings{right:max(2.8vw,calc((100vw - min(100vw,133.333vh))/2 + 3.5%));top:2.1%;width:4.7%;max-width:64px;height:auto;aspect-ratio:1;font-size:clamp(23px,2vw,31px)}
 }
