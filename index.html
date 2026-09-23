@@ -1,63 +1,29 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#cfa06f">
-<meta name="description" content="Cap Stack Sort V2 exact-reference visual playtest">
-<title>Cap Stack Sort — Exact Reference Playtest</title>
-<link rel="stylesheet" href="visual-v3.css?v=20260923-ref6">
-</head>
-<body>
-<div class="viewport">
-  <div class="scene" id="scene">
-    <main class="game-shell">
-      <header class="hud">
-        <div class="hud-card score" id="score-card"><span>SCORE</span><b id="score">0</b></div>
-        <div class="hud-card"><span>BEST</span><b id="best">0</b></div>
-        <div class="hud-card combo"><span>COMBO</span><b id="combo">—</b></div>
-        <div class="hud-card"><span>TIME</span><b id="time">0:00</b></div>
-      </header>
-      <section class="board"><div class="grid" id="grid" aria-label="5 by 6 game board"></div></section>
-      <section class="tray-wrap"><div class="tray" id="tray"></div><div class="tray-label">NEXT<br>STACKS<small>DRAG<br>OR TAP</small></div></section>
-    </main>
-    <button class="settings" id="settings" aria-label="Settings">Settings</button>
-  </div>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#d8ab78"><meta name="description" content="Cap Stack Sort V2 physical tabletop playtest">
+<title>Cap Stack Sort — Physical Tabletop</title><link rel="stylesheet" href="visual-v4.css?v=20260923a">
+</head><body>
+<div class="table-light" aria-hidden="true"></div>
+<div class="foliage foliage-a" aria-hidden="true"><i></i><i></i><i></i></div><div class="foliage foliage-b" aria-hidden="true"><i></i><i></i><i></i></div>
+<button class="settings" id="settings" aria-label="Settings">⚙</button>
+<div class="scene">
+ <aside class="side side-left">
+  <div class="brand-block"><div class="logo"><span>CAP</span><b>STACK</b><small>SORT</small><i>♛</i></div><div class="tag">SAME CAPS. BIGGER COMBOS.</div></div>
+  <div class="scribble">Good Drinks.<br>Better Combos!!<em>☺</em></div>
+  <div class="decor-cap goodvibes"><span>♛</span>GOOD<br>VIBES</div>
+  <div class="opener"><span></span><b>OPEN<br>MORE<br>FUN</b><i>♛</i></div><div class="loose-cola" aria-hidden="true"></div>
+ </aside>
+ <main class="game-shell">
+  <header class="hud"><div class="hud-card score" id="score-card"><span>SCORE</span><b id="score">0</b></div><div class="hud-card"><span>BEST</span><b id="best">0</b></div><div class="hud-card combo"><span>COMBO</span><b id="combo">—</b></div><div class="hud-card time-card"><span>TIME</span><b id="time">0:00</b><i></i></div></header>
+  <section class="board"><div class="board-rim"><div class="grid" id="grid" aria-label="5 by 6 game board"></div></div></section>
+  <section class="tray-wrap"><div class="tray" id="tray"></div><div class="tray-label"><b>NEXT<br>STACKS</b><i>⟶</i><small>DRAG<br>OR TAP</small></div></section>
+ </main>
+ <aside class="side side-right"><div class="note">Small<br>Moves.<br>Big<br>Combos!<span>♛</span></div><div class="arscap" aria-label="ArsCorp decorative cap"></div><div class="coaster">PLAY<br>RELAX<br>REPEAT<small>☺</small></div><div class="glass" aria-hidden="true"><i></i><i></i><i></i></div></aside>
 </div>
 <div class="banner" id="banner"><small id="banner-title"></small><b id="banner-text"></b></div>
 <div class="overlay" id="overlay" hidden><section class="modal"><h2 id="modal-title">Settings</h2><div id="modal-body"></div><div class="modal-actions"><button class="primary" id="replay">New game</button><button class="secondary" id="sound-toggle">Sound: On</button><button class="secondary" id="close-modal">Close</button></div></section></div>
-<div class="build-badge">REFERENCE PASS 6 · CLEAN MASTER · GAMEPLAY LOCKED · 2026-09-23</div>
-<script>
-(async()=>{
-  const scene=document.getElementById('scene');
-  try{
-    const urls=Array.from({length:8},(_,i)=>`assets/cleanref-${String(i+1).padStart(2,'0')}.txt?v=20260923-ref6`);
-    const parts=[];
-    for(const url of urls){
-      const r=await fetch(url,{cache:'no-store'});
-      if(!r.ok) throw new Error(`${url}: ${r.status}`);
-      parts.push((await r.text()).trim());
-    }
-    const src=`data:image/webp;base64,${parts.join('')}`;
-    const probe=new Image();
-    await new Promise((resolve,reject)=>{probe.onload=resolve;probe.onerror=reject;probe.src=src});
-    scene.style.backgroundImage=`url("${src}")`;
-    scene.classList.add('bg-ready');
-  }catch(err){
-    console.error('Clean master scene failed to load',err);
-    scene.classList.add('bg-ready');
-  }
-})();
-(()=>{
-  const scene=document.getElementById('scene');
-  const sync=()=>{
-    const w=scene.getBoundingClientRect().width;
-    document.documentElement.style.setProperty('--cap',`${Math.max(52,Math.min(106,w*0.0685))}px`);
-  };
-  sync();addEventListener('resize',sync,{passive:true});
-})();
-</script>
-<script src="rules.js?v=canonical-20260922b"></script>
-<script src="game.js?v=canonical-20260922c"></script>
-</body>
-</html>
+<div class="build-badge">VISUAL REBUILD · PHYSICAL SCENE · 2026-09-23</div>
+<script>(async()=>{try{const r=await fetch('assets/arscorp-cap.webp.b64?v=20260922a',{cache:'no-store'});if(!r.ok)throw new Error(r.status);const b=(await r.text()).trim();document.documentElement.style.setProperty('--arscap',`url("data:image/webp;base64,${b}")`)}catch(e){console.error('ArsCorp decoration failed to load',e)}})();</script>
+<script src="rules.js?v=canonical-20260922b"></script><script src="game.js?v=canonical-20260922c"></script>
+</body></html>
