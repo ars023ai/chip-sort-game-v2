@@ -83,7 +83,7 @@ button{font:inherit}.scene{position:relative;width:min(1540px,96vw);height:min(1
   :root{--cap:clamp(82px,6.8vw,99px);--cell-h:clamp(96px,10.7vh,103px);--gap:7px}
   .game-shell{left:23.25%;top:1.75%;width:50.4%;height:97.5%}
   .hud{height:7.25%;min-height:64px;margin:0 1.8% 1.5%;grid-template-columns:1.18fr 1fr;gap:9px}
-  .physical-stage{transform:perspective(1500px) rotateX(2deg) rotateZ(-.55deg) skewX(-.38deg)}
+  .physical-stage{transform:rotateZ(-.55deg) skewX(-.38deg) scaleY(.993)}
   .board{padding:17px 15px 28px;border-radius:37px}
   .board-rim{padding:7px;border-radius:24px}
   .tray-wrap{height:12.6%;min-height:110px;width:97%;margin:5px auto 0;grid-template-columns:1fr 19%}
