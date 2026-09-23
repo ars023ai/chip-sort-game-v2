@@ -23,7 +23,7 @@ button{font:inherit}.scene{position:relative;width:min(1540px,96vw);height:min(1
   :root{--cap:clamp(70px,5.85vw,91px);--cell-h:clamp(74px,7.25vh,96px);--gap:7px}
   html,body{background:#d5a979}
   body:before,.table-light,.foliage{display:none}
-  .scene{width:min(100vw,calc(100vh * 1.333333));height:auto;aspect-ratio:4/3;display:block;background:url('assets/tabletop-decor-v1.png?v=1') center/100% 100% no-repeat;overflow:hidden}
+  .scene{width:min(100vw,calc(100vh * 1.333333));height:auto;aspect-ratio:4/3;display:block;background:url('assets/tabletop-decor-v1.webp?v=2') center/100% 100% no-repeat;overflow:hidden}
   .side{display:none}
   .game-shell{position:absolute;left:24.5%;top:1.75%;width:51.1%;height:96.5%;margin:0;display:flex;flex-direction:column;justify-content:flex-start}
   .hud{height:7.2%;min-height:62px;margin:0 2.9% 1.8%;gap:8px}
