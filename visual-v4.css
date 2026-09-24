@@ -138,3 +138,43 @@ button{font:inherit}.scene{position:relative;width:min(1540px,96vw);height:min(1
   .tray-label{border-radius:0 18px 18px 0;padding-left:18px}
   .tray-label b{font-size:15px}.tray-label i{font-size:33px}.tray-label small{font-size:11px;line-height:1.04}
 }
+
+/* V5 reference-locked 2.5D stage.
+   The plate owns all physical materials, lighting and perspective. Live HTML owns
+   only HUD values, caps, hit areas and gameplay animation. */
+@media(min-width:901px){
+  :root{--cap:min(8.55vw,11.4vh);--cell-h:auto;--gap:min(.83vw,1.1vh)}
+  html,body{background:#d3a573}
+  .scene{width:min(100vw,133.333vh);height:auto;aspect-ratio:4/3;background:url('assets/reference-empty-board-v1.png?v=20260924a') center/100% 100% no-repeat;overflow:hidden}
+  .game-shell{position:absolute;inset:0;width:100%;height:100%;margin:0;display:block;pointer-events:none}
+  .hud{position:absolute;left:24.9%;top:1.82%;width:49.9%;height:7.05%;min-height:0;margin:0;display:grid;grid-template-columns:1.235fr 1fr;gap:.76%;pointer-events:none}
+  .hud-group{height:100%;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
+  .hud-group .hud-card{height:100%;background:transparent;border:0;box-shadow:none}
+  .hud-group .hud-card+.hud-card:before{display:none}
+  .hud-card span{visibility:hidden}
+  .hud-card b{margin-top:19%;font-size:min(2.08vw,2.77vh);line-height:1;color:#f7f5ef;text-shadow:0 2px 3px #0009}
+  .hud-card.score b{font-size:min(2.45vw,3.27vh);color:#ffd23c}
+  .hud-card.combo b{font-size:min(2.28vw,3.04vh);color:#ff931d}
+  .time-card i{bottom:7%;width:54%;height:min(.28vw,.37vh);background:#5be44e;box-shadow:0 0 5px #4ee04866}
+  .physical-stage{position:absolute;inset:0;transform:none;transform-style:flat;pointer-events:none}
+  .board{position:absolute;left:27.25%;top:12.7%;width:45.6%;height:70.1%;padding:0;border:0;border-radius:0;background:none;box-shadow:none;pointer-events:none}
+  .board:before,.board:after{display:none}
+  .board-rim{position:absolute;inset:0;padding:0;border:0;border-radius:0;box-shadow:none;pointer-events:none}
+  .grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(6,1fr);gap:var(--gap);z-index:5;pointer-events:none}
+  .cell{min-width:0;padding:0;border:0;border-radius:min(.8vw,1.07vh);background:transparent;box-shadow:none;overflow:visible;pointer-events:auto}
+  .cell:after{display:none}
+  .cell.target{border:0;box-shadow:inset 0 0 0 3px #ffd16dcc,0 0 18px #ffc75d99;background:#ffd16d14}
+  .cell.pulse8{box-shadow:0 0 15px #eec46d66}.cell.pulse9{box-shadow:0 0 24px #ffd46d9c}.cell.charged{box-shadow:0 0 30px #ffc95da8}
+  .stack{left:50%;bottom:-1%;width:var(--cap);height:calc(var(--cap) + 28px);transform:translateX(-50%)}
+  .cap{width:var(--cap);height:var(--cap);border:0;filter:drop-shadow(0 5px 4px #24140872) saturate(1.08) contrast(1.055)}
+  .stack .cap:not(:last-child){filter:saturate(1.08) contrast(1.05);box-shadow:0 2px 0 var(--side,#56351f),0 3px 2px #26160c48}
+  .stack .cap:last-child{filter:drop-shadow(0 6px 4px #24140873) drop-shadow(0 1px 0 #fff5) saturate(1.1) contrast(1.065)}
+  .stack .cap:nth-child(1){bottom:0!important}.stack .cap:nth-child(2){bottom:1.4px!important}.stack .cap:nth-child(3){bottom:3px!important}.stack .cap:nth-child(4){bottom:4.8px!important}.stack .cap:nth-child(5){bottom:6.8px!important}.stack .cap:nth-child(6){bottom:9px!important}.stack .cap:nth-child(7){bottom:11.4px!important}.stack .cap:nth-child(8){bottom:14px!important}.stack .cap:nth-child(9){bottom:16.8px!important}.stack .cap:nth-child(10){bottom:19.8px!important}.stack .cap:nth-child(11){bottom:23px!important}.stack .cap:nth-child(12){bottom:26.4px!important}.stack .cap:nth-child(n+13){bottom:28px!important}
+  .tray-wrap{position:absolute;left:28.4%;top:85.55%;width:50.9%;height:14.1%;min-height:0;margin:0;display:grid;grid-template-columns:81.5% 18.5%;filter:none;pointer-events:none}
+  .tray{padding:4% 2.7% 2.4%;display:grid;grid-template-columns:repeat(3,1fr);gap:2.5%;border:0;border-radius:0;background:transparent;box-shadow:none;pointer-events:none}
+  .tray-slot{border:0;border-radius:min(1vw,1.33vh);background:transparent;box-shadow:none;pointer-events:auto}
+  .tray-slot.selected{background:#ffd36c1f;outline:2px solid #f2bd5aaa}
+  .tray-slot .stack{bottom:2%;height:calc(var(--cap) + 28px)}
+  .tray-label{visibility:hidden;border:0;background:transparent;box-shadow:none;pointer-events:none}
+  .settings{right:max(2.8vw,calc((100vw - min(100vw,133.333vh))/2 + 3.4%));top:2.05%;width:min(4.7vw,6.27vh);height:auto;aspect-ratio:1}
+}
