@@ -1,13 +1,13 @@
 (() => {
   'use strict';
   const R = window.CapRules;
-  if (!R) throw new Error('CapRules missing');
+  const B = window.CapBalance;
+  if (!R || !B) throw new Error('CapRules/CapBalance missing');
 
   const BRANDS = [
     'COLA','PEPZI','FUNTI','SPRYT','Dr. Popper','SWEPS','RED BULL','Monstr',
     'PRYME','Poppy','San Aqua','Mountain Brew','NESTI','Liquid Dead','EVIEN','Grape Crushr'
   ];
-  const UNLOCK_THRESHOLDS = [0,0,0,0,60,140,240,360,500,680,900,1180,1500,1860,2280,2760];
   const SCORE_PER_CAP = 10;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const $ = s => document.querySelector(s);
@@ -16,7 +16,7 @@
   const state = {
     board: Array.from({length:R.CELLS},()=>[]), tray:[[],[],[]], selected:null, busy:false,
     score:0, best:Number(localStorage.getItem('cap-stack-sort-v2-best')||0), combo:0, cleared:0,
-    activeCount:4, startedAt:0, timerId:0, sound:true, drag:null
+    activeCount:4, introQueue:[], startedAt:0, timerId:0, sound:true, drag:null
   };
   const els = {
     grid:$('#grid'),tray:$('#tray'),score:$('#score'),best:$('#best'),combo:$('#combo'),time:$('#time'),
@@ -63,8 +63,7 @@
   function buildGrid(){els.grid.replaceChildren();for(let i=0;i<R.CELLS;i++){const c=document.createElement('button');c.type='button';c.className='cell empty';c.dataset.i=i;c.setAttribute('aria-label',`Board cell ${i+1}`);c.addEventListener('click',()=>{if(state.selected!=null)placeFromTray(state.selected,i)});els.grid.appendChild(c)}}
   function buildTray(){els.tray.replaceChildren();for(let i=0;i<3;i++){const s=document.createElement('button');s.type='button';s.className='tray-slot';s.dataset.slot=i;s.setAttribute('aria-label',`Next stack ${i+1}`);s.addEventListener('click',()=>{if(state.busy||!state.tray[i].length)return;state.selected=state.selected===i?null:i;sfx('select');renderTray()});s.addEventListener('pointerdown',ev=>beginDrag(ev,i));els.tray.appendChild(s)}}
 
-  function pickBrand(){const candidates=Array.from({length:state.activeCount},(_,i)=>i),helpful=[];state.board.forEach(s=>{const b=R.top(s),n=R.topRun(s);if(b!=null&&b<state.activeCount&&n>=3&&n<=9)helpful.push(b)});if(helpful.length&&Math.random()<.62)return helpful[Math.floor(Math.random()*helpful.length)];return candidates[Math.floor(Math.random()*candidates.length)]}
-  function makeNextStack(){const easy=elapsed()<180,layers=Math.random()<(easy?.12:.26)?2:1,out=[];let prev=-1;for(let l=0;l<layers;l++){let b=pickBrand();if(b===prev&&state.activeCount>1)b=(b+1+Math.floor(Math.random()*(state.activeCount-1)))%state.activeCount;prev=b;const count=easy?4+Math.floor(Math.random()*3):2+Math.floor(Math.random()*4);for(let k=0;k<count;k++)out.push(b)}return out}
+  function makeNextStack(){const forcedBrand=state.introQueue.length?state.introQueue.shift():null;return B.makeNextStack({board:state.board,activeCount:state.activeCount,elapsed:elapsed(),cleared:state.cleared,freeCells:state.board.filter(s=>!s.length).length,forcedBrand})}
   function refillTrayIfNeeded(){if(state.tray.every(s=>s.length===0))state.tray=[makeNextStack(),makeNextStack(),makeNextStack()];renderTray()}
 
   async function placeFromTray(slot,idx){if(state.busy||!state.tray[slot].length)return;if(state.board[idx].length){pulseBad(idx);return}startTimer();state.busy=true;state.combo=0;state.selected=null;state.board[idx]=state.tray[slot].slice();state.tray[slot]=[];renderBoard();renderTray();sfx('land');playNearState(idx);await sleep(120);await resolveAll(idx);refillTrayIfNeeded();renderHud();if(R.gameOver(state.board))showGameOver();state.busy=false}
@@ -80,7 +79,7 @@
 
   function findResolvable(preferred){if(preferred!=null&&R.top(state.board[preferred])!=null&&(R.component(state.board,preferred).length>1||R.topRun(state.board[preferred])>=R.CLEAR_AT))return preferred;for(let i=0;i<R.CELLS;i++)if(R.top(state.board[i])!=null&&(R.component(state.board,i).length>1||R.topRun(state.board[i])>=R.CLEAR_AT))return i;return-1}
   async function resolveAll(preferred){let anchor=preferred,guard=0;while(guard++<120){anchor=findResolvable(anchor);if(anchor<0)break;const comp=R.component(state.board,anchor);if(comp.length>1)await gatherComponent(comp,anchor);if(R.topRun(state.board[anchor])>=R.CLEAR_AT)await clearTopRun(anchor);else state.combo=0;anchor=null}maybeUnlock()}
-  function maybeUnlock(){while(state.activeCount<BRANDS.length&&state.cleared>=UNLOCK_THRESHOLDS[state.activeCount]){const b=state.activeCount++;sfx('unlock');showBanner('NEW CAP UNLOCKED',BRANDS[b])}}
+  function maybeUnlock(){if(elapsed()<180)return;while(state.activeCount<B.BRAND_ORDER.length&&state.cleared>=B.UNLOCK_CLEARS[state.activeCount]){const brand=B.BRAND_ORDER[state.activeCount++];state.introQueue.push(brand,brand,brand);sfx('unlock');showBanner('NEW CAP UNLOCKED',BRANDS[brand])}}
   function showBanner(title,text){els.bannerTitle.textContent=title;els.bannerText.textContent=text;els.banner.classList.add('show');clearTimeout(showBanner.t);showBanner.t=setTimeout(()=>els.banner.classList.remove('show'),1800)}
 
   function beginDrag(ev,slot){if(state.busy||!state.tray[slot].length||ev.button>0)return;sfx('pickup');const ghost=document.createElement('div');ghost.className='ghost';ghost.appendChild(stackEl(state.tray[slot],true));document.body.appendChild(ghost);state.drag={slot,ghost,moved:false};moveGhost(ev.clientX,ev.clientY);const onMove=e=>{if(!state.drag)return;state.drag.moved=true;moveGhost(e.clientX,e.clientY);highlightTarget(e.clientX,e.clientY)};const onUp=e=>{window.removeEventListener('pointermove',onMove);window.removeEventListener('pointerup',onUp);finishDrag(e.clientX,e.clientY)};window.addEventListener('pointermove',onMove);window.addEventListener('pointerup',onUp,{once:true})}
@@ -92,7 +91,7 @@
   function showGameOver(){stopTimer();sfx('gameover');els.modalTitle.textContent='Game Over';els.modalBody.innerHTML=`<div class="result"><span>FINAL SCORE</span><b>${state.score.toLocaleString()}</b><small>${formatTime(elapsed())}</small></div><p>The board is full after all reactions have finished.</p>`;els.overlay.hidden=false}
   function openSettings(){sfx('ui');els.modalTitle.textContent='Settings';els.modalBody.innerHTML='<p>Canonical V2 playtest. Drag or tap a NEXT STACK onto an empty cell. Matching exposed caps merge one by one; 10 or more clear into SCORE.</p>';els.soundToggle.textContent=`Sound: ${state.sound?'On':'Off'}`;els.overlay.hidden=false}
   function closeOverlay(){els.overlay.hidden=true}
-  function resetGame(){sfx('reset');stopTimer();state.board=Array.from({length:R.CELLS},()=>[]);state.tray=[[],[],[]];state.selected=null;state.busy=false;state.score=0;state.combo=0;state.cleared=0;state.activeCount=4;state.startedAt=0;refillTrayIfNeeded();renderBoard();renderHud();closeOverlay()}
+  function resetGame(){sfx('reset');stopTimer();state.board=Array.from({length:R.CELLS},()=>[]);state.tray=[[],[],[]];state.selected=null;state.busy=false;state.score=0;state.combo=0;state.cleared=0;state.activeCount=4;state.introQueue=[];state.startedAt=0;refillTrayIfNeeded();renderBoard();renderHud();closeOverlay()}
   function init(){buildGrid();buildTray();els.best.textContent=state.best.toLocaleString();refillTrayIfNeeded();renderBoard();renderHud();els.settings.addEventListener('click',openSettings);els.closeModal.addEventListener('click',closeOverlay);els.replay.addEventListener('click',resetGame);els.soundToggle.addEventListener('click',()=>{state.sound=!state.sound;els.soundToggle.textContent=`Sound: ${state.sound?'On':'Off'}`;if(state.sound)sfx('ui')});document.addEventListener('keydown',e=>{const n=Number(e.key);if(n>=1&&n<=3){state.selected=n-1;sfx('select');renderTray()}if(e.key==='Escape')closeOverlay()})}
   init();
 })();
