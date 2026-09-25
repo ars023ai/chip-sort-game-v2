@@ -178,3 +178,26 @@ button{font:inherit}.scene{position:relative;width:min(1540px,96vw);height:min(1
   .tray-label{visibility:hidden;border:0;background:transparent;box-shadow:none;pointer-events:none}
   .settings{right:max(2.8vw,calc((100vw - min(100vw,133.333vh))/2 + 3.4%));top:2.05%;width:min(4.7vw,6.27vh);height:auto;aspect-ratio:1}
 }
+
+/* Stack seating C — one centred 3D pile, not a fan of flat caps.
+   The first cap owns the cell centre; every following cap sits on top of it. */
+@media(min-width:901px){
+  :root{--cap:min(7.15vw,9.53vh)}
+  .cell>.stack{left:50%;top:52%;bottom:auto;width:var(--cap);height:var(--cap);transform:translate(-50%,-50%)}
+  .cell>.stack .cap{left:50%;margin-left:calc(var(--cap)/-2);transform:translateX(0)!important;filter:drop-shadow(0 2px 1.5px #2414084f) saturate(1.08) contrast(1.055)}
+  .cell>.stack .cap:not(:last-child){box-shadow:0 1.5px 0 var(--side,#56351f),0 2.5px 1.5px #26160c42}
+  .cell>.stack .cap:last-child{filter:drop-shadow(0 3px 2px #24140859) drop-shadow(0 1px 0 #fff4) saturate(1.1) contrast(1.065)}
+  .cell>.stack .cap:nth-child(1){bottom:0!important}
+  .cell>.stack .cap:nth-child(2){bottom:1px!important}
+  .cell>.stack .cap:nth-child(3){bottom:2.1px!important}
+  .cell>.stack .cap:nth-child(4){bottom:3.3px!important}
+  .cell>.stack .cap:nth-child(5){bottom:4.6px!important}
+  .cell>.stack .cap:nth-child(6){bottom:6px!important}
+  .cell>.stack .cap:nth-child(7){bottom:7.5px!important}
+  .cell>.stack .cap:nth-child(8){bottom:9.1px!important}
+  .cell>.stack .cap:nth-child(9){bottom:10.8px!important}
+  .cell>.stack .cap:nth-child(10){bottom:12.6px!important}
+  .cell>.stack .cap:nth-child(11){bottom:14.5px!important}
+  .cell>.stack .cap:nth-child(12){bottom:16.5px!important}
+  .cell>.stack .cap:nth-child(n+13){bottom:18px!important}
+}
