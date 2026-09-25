@@ -145,7 +145,7 @@ button{font:inherit}.scene{position:relative;width:min(1540px,96vw);height:min(1
 @media(min-width:901px){
   :root{--cap:min(8.55vw,11.4vh);--cell-h:auto;--gap:min(.83vw,1.1vh)}
   html,body{background:#d3a573}
-  .scene{width:min(100vw,133.333vh);height:auto;aspect-ratio:4/3;background:url('assets/reference-hud3-tray-v2.webp?v=20260924d') center/100% 100% no-repeat;overflow:hidden}
+  .scene{width:min(100vw,133.333vh);height:auto;aspect-ratio:4/3;background:url('assets/reference-hud3-tray-v3.webp?v=20260925a') center/100% 100% no-repeat;overflow:hidden}
   .game-shell{position:absolute;inset:0;width:100%;height:100%;margin:0;display:block;pointer-events:none}
   .hud{position:absolute;left:24.9%;top:1.72%;width:49.9%;height:7.2%;min-height:0;margin:0;display:grid;grid-template-columns:21% 58% 21%;gap:0;pointer-events:none}
   .hud .hud-card{height:100%;min-width:0;background:transparent;border:0;border-radius:0;box-shadow:none;overflow:visible;justify-content:flex-start;padding-top:min(.65vw,.87vh)}
@@ -170,7 +170,7 @@ button{font:inherit}.scene{position:relative;width:min(1540px,96vw);height:min(1
   .stack .cap:not(:last-child){filter:saturate(1.08) contrast(1.05);box-shadow:0 2px 0 var(--side,#56351f),0 3px 2px #26160c48}
   .stack .cap:last-child{filter:drop-shadow(0 6px 4px #24140873) drop-shadow(0 1px 0 #fff5) saturate(1.1) contrast(1.065)}
   .stack .cap:nth-child(1){bottom:0!important}.stack .cap:nth-child(2){bottom:1.4px!important}.stack .cap:nth-child(3){bottom:3px!important}.stack .cap:nth-child(4){bottom:4.8px!important}.stack .cap:nth-child(5){bottom:6.8px!important}.stack .cap:nth-child(6){bottom:9px!important}.stack .cap:nth-child(7){bottom:11.4px!important}.stack .cap:nth-child(8){bottom:14px!important}.stack .cap:nth-child(9){bottom:16.8px!important}.stack .cap:nth-child(10){bottom:19.8px!important}.stack .cap:nth-child(11){bottom:23px!important}.stack .cap:nth-child(12){bottom:26.4px!important}.stack .cap:nth-child(n+13){bottom:28px!important}
-  .tray-wrap{position:absolute;left:25.35%;top:85.45%;width:53.75%;height:14.25%;min-height:0;margin:0;display:grid;grid-template-columns:85.4% 14.6%;filter:none;pointer-events:none}
+  .tray-wrap{position:absolute;left:27.62%;top:84.99%;width:51.86%;height:15.01%;min-height:0;margin:0;display:grid;grid-template-columns:85.72% 14.28%;filter:none;pointer-events:none}
   .tray{padding:4% 2.5% 2.4%;display:grid;grid-template-columns:repeat(3,1fr);gap:2.3%;border:0;border-radius:0;background:transparent;box-shadow:none;pointer-events:none}
   .tray-slot{border:0;border-radius:min(1vw,1.33vh);background:transparent;box-shadow:none;pointer-events:auto}
   .tray-slot.selected{background:#ffd36c1f;outline:2px solid #f2bd5aaa}
