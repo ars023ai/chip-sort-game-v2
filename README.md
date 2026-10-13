@@ -42,8 +42,8 @@ Open the same page with `?creator=1`. This is a local creative tool, not an auth
 - Select any live cell or Next slot, add/remove/reorder color layers, copy/paste stacks, and undo changes.
 - Choose a trigger Next stack and empty cell. Play, pause, rewind, or repeat the original take without rebuilding it.
 - Set a starting score; use ordinary scoring or Super Score at 10×. Neither changes normal BEST.
-- Change animation speed to 0.5×, 1×, 1.5× or 2×.
-- Clean capture has full-tabletop, portrait and board-close-up compositions. Esc returns to the editor. Recording is done with the user's screen recorder.
+- Change animation speed to 0.5×, 1×, 1.5× or 2×. The playback clock does not depend on browser frame frequency; a finished take freezes its timer.
+- Clean capture has full-tabletop, 9:16 portrait and board-close-up compositions. Esc returns to the editor. Recording is done with the user's screen recorder.
 - Save up to 30 scenes in the browser, export/import portable JSON, or copy a link with the complete scene. Imports validate sizes, cap IDs, score and the trigger.
 
 ## Run and verify
@@ -59,4 +59,4 @@ npm run simulate
 
 `dist/` contains only the twelve production files. GitHub Pages publishes this folder after all regression tests pass. Tests cover thresholds, buried layers, adjacency, progression and intro persistence, rescue probabilities, 300 scene variations, JSON links, storage validation, pause/resume, cancellation during placement/merge/clear, editor undo, Super Score isolation, and the frozen Game Over timer.
 
-Version: 2.0.1 · October 13, 2026.
+Version: 2.0.2 · October 13, 2026.

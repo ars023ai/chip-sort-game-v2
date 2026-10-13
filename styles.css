@@ -62,3 +62,8 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:man
 @keyframes scoreHit{50%{transform:scale(1.1)}}@keyframes bad{30%{transform:translateX(3px)}70%{transform:translateX(-3px)}}@keyframes chainPop{0%{opacity:0;transform:translate(-50%,-35%) scale(.8)}20%,65%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-75%) scale(1.03)}}
 .capture-mode.board-capture .scene{width:min(200vw,190.47svh);aspect-ratio:4/3;background-size:100% 100%;transform:translateY(3.3svh)}
 .capture-mode.board-capture .board{left:27.25%;width:45.6%}.capture-mode.board-capture .hud,.capture-mode.board-capture .tray-wrap{display:none}
+/* Clean takes remove editor selection. Portrait capture has a true 9:16 frame. */
+.capture-mode .cell.edit-picked{background:transparent;box-shadow:none}
+.capture-mode.portrait-mode{background:#17211c}
+.capture-mode.portrait-mode .play-area{width:min(100vw,56.25svh);margin:auto;background:#cda475}
+.capture-mode.portrait-mode .scene{width:min(100vw,56.25svh)}

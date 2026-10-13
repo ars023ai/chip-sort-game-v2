@@ -1,6 +1,6 @@
 {
   "name": "cap-stack-sort",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "scripts": {
     "test": "node tests/rules.cjs && node tests/progression.cjs && node tests/scenes.cjs && node tests/session.cjs && node tests/lifecycle.cjs",
