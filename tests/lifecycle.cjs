@@ -31,7 +31,8 @@ function harness(creator, saved, best = 9876, motion = false, frameLess = false)
   w.localStorage.setItem('cap-stack-sort-v2-best', JSON.stringify(best));
   w.localStorage.setItem('cap-stack-sort-options-v2', JSON.stringify({ sound: false, motion }));
   if (saved) w.localStorage.setItem('cap-stack-sort-session-v2', JSON.stringify(saved));
-  for (const file of ['rules.js', 'balance.js', 'scenes.js', 'session.js', 'game.js', 'studio.js']) w.eval(fs.readFileSync(path.join(root, file), 'utf8'));
+  for (const file of ['rules.js', 'balance.js', 'scenes.js', 'session.js', 'layout.js', 'game.js', 'studio.js']) w.eval(fs.readFileSync(path.join(root, file), 'utf8'));
+  w.document.querySelector('#boot-screen').hidden = true;
   async function advance(duration) {
     const until = now + duration;
     while (now < until) {
@@ -95,12 +96,32 @@ function harness(creator, saved, best = 9876, motion = false, frameLess = false)
   assert.equal(f.G.status().busy, false); const finishedTime = f.G.snapshot().elapsedMs;
   await f.advance(10000); assert.equal(f.G.snapshot().elapsedMs, finishedTime, 'completed creator take freezes time'); f.close();
   const P = require('../session.js'); const saved = P.create(1); saved.started = true; saved.tray = [[0,0,0,0],[1,1,1,1],[2,2,2,2]]; saved.elapsedMs = 12000;
-  const n = harness(false, saved); assert.equal(n.w.document.querySelector('#modal-title').textContent, 'Your board is waiting.');
-  await n.advance(5000); assert.equal(n.G.snapshot().elapsedMs, 12000); n.press('Continue round'); await n.advance(3000);
-  assert(n.G.snapshot().elapsedMs >= 14900); n.w.document.querySelector('#settings').click();
+  const n = harness(false, saved); assert.equal(n.w.document.querySelector('#home-title').textContent, 'Your board is waiting.'); assert.equal(n.w.document.querySelector('#home-screen').hidden, false);
+  await n.advance(5000); assert.equal(n.G.snapshot().elapsedMs, 12000); n.press('Continue'); await n.advance(3000);
+  assert(n.G.snapshot().elapsedMs >= 14900); n.w.document.querySelector('#pause-button').click();
   const atPause = n.G.snapshot().elapsedMs; await n.advance(5000); assert.equal(n.G.snapshot().elapsedMs, atPause);
   n.press('Start a fresh game'); n.press('Start new game'); await n.advance(3000);
   assert.equal(n.G.snapshot().elapsedMs, 0); assert.equal(n.G.snapshot().started, false); assert.equal(n.G.snapshot().moves, 0);
   assert.equal(n.errors.length, 0); n.close();
+  const first = harness(false); assert.equal(first.G.status().homeVisible, true);
+  await first.advance(10000); assert.equal(first.G.snapshot().elapsedMs, 0);
+  first.press('How to play'); assert.equal(first.w.document.querySelector('#modal-title').textContent, 'Small moves. Big chains.'); first.press('Back to menu');
+  first.press('Settings'); const sound = first.w.document.querySelector('input[aria-label="Sound effects"]'); sound.checked = true; sound.dispatchEvent(new first.w.Event('change')); first.press('Back to menu');
+  assert.equal(JSON.parse(first.w.localStorage.getItem('cap-stack-sort-options-v2')).sound, true);
+  first.press('Play'); assert.equal(first.G.status().homeVisible, false); assert.equal(first.w.document.querySelector('#coach').hidden, false);
+  const one = first.G.place(0,12); await first.advance(2000); await one; const two = first.G.place(1,13); await first.advance(5000); await two;
+  assert.equal(first.G.snapshot().score,100); assert.equal(first.G.snapshot().cleared,10); assert.equal(first.w.document.querySelector('#coach-title').textContent,'Nice. Your first clear!');
+  first.press('Got it'); assert.equal(first.w.document.querySelector('#coach').hidden,true); assert.equal(JSON.parse(first.w.localStorage.getItem('cap-stack-sort-options-v2')).tutorialDone,true);
+  first.w.document.querySelector('#home-button').click(); const inMenu = JSON.stringify(first.G.snapshot()); await first.advance(5000); assert.equal(JSON.stringify(first.G.snapshot()),inMenu);
+  first.press('Continue'); assert.equal(first.G.snapshot().score,100); assert.equal(first.G.snapshot().moves,2);
+  const pendingMove = first.G.place(2,0); await first.advance(16); first.w.document.querySelector('#home-button').click();
+  const waiting = JSON.stringify(first.G.snapshot()); await first.advance(3000); assert.equal(JSON.stringify(first.G.snapshot()),waiting,'home freezes an in-flight move');
+  first.press('Continue'); await first.advance(3000); assert.equal(await pendingMove,true);
+  first.w.document.querySelector('#home-button').click(); first.press('New game'); first.press('Keep this round'); assert.equal(first.G.snapshot().score,100,'cancelled restart keeps the round');
+  first.press('New game'); first.press('Start new game'); assert.equal(first.G.snapshot().score,0); assert.equal(first.G.snapshot().tutorial,false,'introduction is not repeated after completion');
+  const restoreMe = first.G.place(0,0); await first.advance(2000); await restoreMe; first.w.document.querySelector('#home-button').click();
+  const stored = JSON.parse(first.w.localStorage.getItem('cap-stack-sort-session-v2')), reopened = harness(false,stored); assert.equal(reopened.G.status().homeVisible,true); reopened.press('Continue');
+  assert.deepEqual(JSON.parse(JSON.stringify(reopened.G.snapshot().board)),stored.board,'home continuation restores the same board');
+  assert.equal(first.errors.length,0); assert.equal(reopened.errors.length,0); first.close(); reopened.close();
   console.log('PASS: animated lifecycle, pause, cancellation at 3 phases, Super Score isolation, editor undo, save/resume, frozen Game Over');
 })().catch(error => { console.error(error); process.exitCode = 1; });

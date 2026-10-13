@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const R = window.CapRules, B = window.CapBalance, S = window.CapScenes, P = window.CapSession;
+  const R = window.CapRules, B = window.CapBalance, S = window.CapScenes, P = window.CapSession, L = window.CapLayout;
   if (!R || !B || !S || !P) throw new Error('Game modules could not load.');
   const $ = selector => document.querySelector(selector);
   const els = { grid: $('#grid'), tray: $('#tray'), score: $('#score'), best: $('#best'), time: $('#time'),
@@ -9,13 +9,13 @@
     banner: $('#banner'), bannerTitle: $('#banner-title'), bannerText: $('#banner-text'), chain: $('#chain-flash'), announcer: $('#announcer') };
   const creator = new URLSearchParams(location.search).get('creator') === '1';
   const savedOptions = P.read(P.OPTIONS_KEY, {});
-  const options = { sound: savedOptions.sound !== false, motion: savedOptions.motion ?? !matchMedia('(prefers-reduced-motion: reduce)').matches };
+  const options = { sound: savedOptions.sound !== false, tutorialDone: savedOptions.tutorialDone === true, motion: savedOptions.motion ?? !matchMedia('(prefers-reduced-motion: reduce)').matches };
   let best = Math.max(0, Math.min(1e12, Number(P.read(P.BEST_KEY, 0)) || 0));
   let session, random, selected = null, busy = false, pauseReasons = new Set(), lastTick = performance.now(), motionClock = 0;
   let controller = new AbortController(), lastStable, dialogKind = '', previousFocus = null, drag = null;
   let editing = creator, editPicked = { kind: 'board', index: 12 }, sceneMove = null, speed = 1, multiplier = 1;
   const animations = new Set(), listeners = new Set(), cells = [], slots = [];
-  let chainCount = 0, bannerTimer = 0, suppressClick = false;
+  let chainCount = 0, bannerTimer = 0, suppressClick = false, homeVisible = false, lastRound = null;
   const audio = name => { window.CapAudio?.setEnabled(options.sound && !pauseReasons.size); window.CapAudio?.play(name, chainCount); };
   const announce = text => { els.announcer.textContent = text; };
   const emit = type => listeners.forEach(fn => fn(type));
@@ -59,7 +59,7 @@
         if (signal.aborted) return;
         tick();
         const remaining = deadline - motionClock;
-        if (remaining <= 0) { signal.removeEventListener('abort', stop); resolve(); }
+        if (remaining <= 0 && !pauseReasons.size) { signal.removeEventListener('abort', stop); resolve(); }
         else timer = setTimeout(step, pauseReasons.size ? 30 : Math.max(4, Math.min(30, remaining / speed)));
       };
       timer = setTimeout(step, 8);
@@ -111,16 +111,18 @@
     els.score.textContent = session.score.toLocaleString('en-US'); els.best.textContent = creator ? 'SCENE' : best.toLocaleString('en-US');
     els.time.textContent = timeText(seconds());
     const scoreDigits = String(session.score).length;
-    els.score.style.fontSize = `calc(var(--u) * ${scoreDigits > 8 ? 1.55 : scoreDigits > 6 ? 1.95 : 2.5})`;
+    const mobile = $('#app').classList.contains('mobile-game') || $('#app').classList.contains('compact-game');
+    els.score.style.fontSize = `${mobile ? `max(${scoreDigits > 8 ? 10 : scoreDigits > 6 ? 14 : 20}px, ` : ''}calc(var(--u) * ${scoreDigits > 8 ? 1.55 : scoreDigits > 6 ? 1.95 : 2.5})${mobile ? ')' : ''}`;
     const bestDigits = String(best).length;
-    els.best.style.fontSize = `calc(var(--u) * ${creator ? 1.4 : bestDigits > 7 ? 1.2 : bestDigits > 5 ? 1.6 : 2.02})`;
+    els.best.style.fontSize = `${mobile && !creator ? `max(${bestDigits > 7 ? 10 : bestDigits > 5 ? 14 : 16}px, ` : ''}calc(var(--u) * ${creator ? 1.4 : bestDigits > 7 ? 1.2 : bestDigits > 5 ? 1.6 : 2.02})${mobile && !creator ? ')' : ''}`;
     els.hint.classList.toggle('done', session.moves > 2 || creator);
     if (session.moves <= 2 && !creator) els.hint.textContent = selected == null ? 'Pick a stack. Tap an empty cell.' : 'Matching tops merge. 10 or more clear.';
   }
-  function render() { renderBoard(); renderTray(); renderHud(); emit('render'); }
+  function render() { renderBoard(); renderTray(); renderHud(); renderCoach(); emit('render'); }
   function checkpoint() {
     tick(); session.rngState = random.getState(); lastStable = clone(session);
     if (!creator) {
+      if (session.over) lastRound = { score: session.score, cleared: session.cleared, activeCount: session.activeCount };
       best = Math.max(best, session.score); P.write(P.BEST_KEY, best); P.write(P.SAVE_KEY, lastStable);
     }
   }
@@ -137,10 +139,10 @@
         forcedBrand, excludedBrand: session.presenting?.brand }, random);
     }
   }
-  function reset(seedValue = seed()) {
-    cancelRun(); closeDialog(); pauseReasons.delete('manual'); editing = creator;
+  function reset(seedValue = seed(), guided = false, silent = false) {
+    cancelRun(); closeDialog(); pauseReasons.delete('manual'); setPause('home', false); homeVisible = false; $('#home-screen').hidden = true; $('#play-area').inert = false; $('#game-toolbar').hidden = creator; editing = creator;
     session = P.create(seedValue); random = B.seededRandom(session.seed); sceneMove = null; lastTick = performance.now();
-    refill(); checkpoint(); render(); audio('reset'); emit('reset');
+    refill(); if (guided && !creator) { session.tutorial = true; session.tray = [Array(5).fill(0), Array(5).fill(0), Array(5).fill(3)]; } checkpoint(); render(); if (!silent) audio('reset'); emit('reset'); resize();
   }
   function pointAt(index, length = session.board[index].length) {
     const box = cells[index].getBoundingClientRect(), size = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cap'));
@@ -293,18 +295,18 @@
   function openDialog(kind, title, eyebrow, body, actions) {
     if (els.overlay.hidden) previousFocus = document.activeElement;
     dialogKind = kind; setPause('dialog', true); els.title.textContent = title; els.eyebrow.textContent = eyebrow;
-    $('#close-modal').hidden = kind === 'over';
+    $('#close-modal').hidden = kind === 'over'; $('#home-screen').inert = true;
     els.body.replaceChildren(); if (typeof body === 'string') els.body.innerHTML = body; else els.body.append(body);
     els.actions.replaceChildren(...actions); els.overlay.hidden = false; els.modal.focus();
   }
   function closeDialog() {
-    els.overlay.hidden = true; dialogKind = ''; setPause('dialog', false); previousFocus?.focus?.();
+    els.overlay.hidden = true; dialogKind = ''; $('#home-screen').inert = false; setPause('dialog', false); previousFocus?.focus?.();
   }
   function showGameOver() {
     const wasBest = session.score >= best && session.score > 0;
     openDialog('over', 'One more round?', wasBest ? 'A SCORE WORTH CHASING' : 'YOUR NEXT BEST IS WAITING',
       `<div class="result"><span>FINAL SCORE</span><strong>${session.score.toLocaleString('en-US')}</strong><small>${timeText(seconds())} · Best ${best.toLocaleString('en-US')}</small></div><div class="result-meta"><div><b>${session.cleared}</b><span>CAPS CLEARED</span></div><div><b>${session.activeCount}/16</b><span>BRANDS FOUND</span></div></div><p>Every cell is full. A fresh board, a new chance.</p>`,
-      [button('Play again', 'primary', () => reset()), button('How to play', 'secondary', howTo)]);
+      [button('Play again', 'primary', startNew), button('Main menu', 'secondary', showHome), button('How to play', 'secondary', howTo)]);
   }
   function optionsBody() {
     const container = document.createElement('div'); container.className = 'options';
@@ -316,13 +318,83 @@
     return container;
   }
   function settings() {
-    openDialog('settings', 'Take a breather.', 'PAUSED', optionsBody(), [button('Resume', 'primary', closeDialog), button('How to play', 'secondary', howTo),
-      button('Start a fresh game', 'secondary', () => openDialog('restart', 'A fresh start?', 'NEW GAME', '<p>Your best score stays. This round starts again from an empty board.</p>',
-        [button('Start new game', 'primary', () => reset()), button('Keep this round', 'secondary', settings)]))]);
+    const onMenu = homeVisible;
+    openDialog('settings', onMenu ? 'Make yourself comfortable.' : 'Take a breather.', onMenu ? 'SETTINGS' : 'PAUSED', optionsBody(), [
+      button(onMenu ? 'Back to menu' : 'Resume', 'primary', closeDialog), button('How to play', 'secondary', howTo),
+      ...(!creator ? [button('Practice your first combination', 'secondary', () => confirmNew(true)), button('Main menu', 'secondary', showHome)] : []),
+      button('Start a fresh game', 'secondary', () => confirmNew(false))]);
+  }
+  function confirmNew(practice = false) {
+    openDialog('restart', 'A fresh start?', 'NEW GAME', '<p>Your best score stays. This round starts again from an empty board.</p>',
+      [button(practice ? 'Start practice' : 'Start new game', 'primary', () => startNew(practice)), button('Keep this round', 'secondary', closeDialog)]);
+  }
+  function startNew(practice = false) {
+    reset(seed(), !creator && (practice === true || !options.tutorialDone));
+    if (!creator) slots[0].focus();
   }
   function howTo() {
-    openDialog('help', 'Small moves. Big chains.', 'HOW TO PLAY', '<ol class="rules-list"><li>Drag a Next stack onto an empty cell, or tap the stack and then the cell.</li><li>Neighboring stacks with the same top brand gather one cap at a time.</li><li>A top group of 10 or more clears. Every cleared cap gives 10 points.</li><li>Buried brands stay. Reveal them to start another chain.</li><li>Use all three Next stacks to get a fresh set. Keep an empty cell to stay in the game.</li></ol><p>Four brands and three easy minutes to settle in. New brands arrive as your score grows. There is no time limit.</p>',
-      [button(session.over ? 'Back to results' : 'Got it — let’s play', 'primary', session.over ? showGameOver : closeDialog)]);
+    const rows = [
+      ['1', 'Place a stack', 'Drag it onto an empty cell, or tap the stack and then the cell.'],
+      ['2', 'Match the tops', 'Neighboring stacks with the same top cap gather together.'],
+      ['3', 'Clear ten or more', 'Each cleared cap gives 10 points. Buried colors stay and can start another chain.']
+    ];
+    const content = document.createElement('div'); content.className = 'help-cards';
+    for (const [number, title, text] of rows) {
+      const row = document.createElement('div'); row.className = 'help-step';
+      const n = document.createElement('b'); n.textContent = number;
+      const copy = document.createElement('div'), h = document.createElement('strong'), p = document.createElement('p'); h.textContent = title; p.textContent = text; copy.append(h, p); row.append(n, copy); content.append(row);
+    }
+    const p = document.createElement('p'); p.textContent = 'Use all three Next stacks to get a fresh set. Keep an empty cell to stay in the game. There is no time limit.'; content.append(p);
+    openDialog('help', 'Small moves. Big chains.', 'HOW TO PLAY', content,
+      [button(session.over && !homeVisible ? 'Back to results' : homeVisible ? 'Back to menu' : 'Got it — let’s play', 'primary', session.over && !homeVisible ? showGameOver : closeDialog)]);
+  }
+  function showHome() {
+    if (creator) return;
+    closeDialog(); setPause('home', true); homeVisible = true; selected = null;
+    $('#home-screen').hidden = false; $('#play-area').inert = true; $('#game-toolbar').hidden = true;
+    const canContinue = session.started && !session.over;
+    $('#home-best').textContent = best.toLocaleString('en-US');
+    $('#home-continue').hidden = !canContinue;
+    $('#home-play').textContent = canContinue ? 'New game' : 'Play';
+    $('#home-play').className = canContinue ? 'secondary home-primary' : 'primary home-primary';
+    $('#home-title').textContent = canContinue ? 'Your board is waiting.' : 'One more good move.';
+    $('#home-eyebrow').textContent = canContinue ? 'PICK UP WHERE YOU LEFT OFF' : 'YOUR NEXT BEST STARTS HERE';
+    const detail = $('#home-round'); detail.hidden = !canContinue && !lastRound;
+    detail.textContent = canContinue ? `${session.score.toLocaleString('en-US')} points · ${timeText(seconds())} · ${session.activeCount}/16 caps found` : lastRound ? `Last round: ${lastRound.score.toLocaleString('en-US')} points · ${lastRound.activeCount}/16 caps found` : '';
+    if (!busy) checkpoint(); else P.write(P.SAVE_KEY, lastStable);
+    renderCoach(); resize(); (canContinue ? $('#home-continue') : $('#home-play')).focus();
+  }
+  function continueGame() {
+    if (session.over) return;
+    $('#home-screen').hidden = true; homeVisible = false; $('#play-area').inert = false; $('#game-toolbar').hidden = false;
+    setPause('home', false); render(); resize(); slots.find((_, i) => session.tray[i].length)?.focus();
+  }
+  function renderCoach() {
+    const show = !creator && session?.tutorial && !homeVisible && !session.over;
+    const was = !$('#coach').hidden; $('#coach').hidden = !show;
+    cells.forEach(cell => cell.classList.remove('guide-target')); slots.forEach(slot => slot.classList.remove('guide-target'));
+    if (show) {
+      const cleared = session.cleared > 0;
+      $('#coach-title').textContent = cleared ? 'Nice. Your first clear!' : session.moves ? 'Bring them together' : 'Your first move';
+      $('#coach-text').textContent = cleared ? 'Each cap gives 10 points. Keep room for the next set.' : session.moves ? 'Put matching caps next to each other.' : 'Tap a stack, then an empty cell.';
+      $('#coach-skip').textContent = cleared ? 'Got it' : 'Skip';
+      if (!cleared && !busy) {
+        const anchor = session.board.findIndex(stack => R.top(stack) === 0), slot = session.tray.findIndex(stack => R.top(stack) === 0);
+        if (slot >= 0) slots[slot].classList.add('guide-target');
+        const targets = anchor >= 0 ? R.neighbors(anchor).filter(index => !session.board[index].length) : [12];
+        targets.forEach(index => cells[index].classList.add('guide-target'));
+      }
+    }
+    if (was !== show) resize();
+  }
+  function finishIntroduction() {
+    options.tutorialDone = true; session.tutorial = false; P.write(P.OPTIONS_KEY, options);
+    if (!busy) checkpoint(); renderCoach(); resize();
+  }
+  function about() {
+    openDialog('about', 'Made for good moves.', 'CAP STACK SORT · 2.1',
+      '<p>Built by ArsCorp. An endless puzzle with sixteen caps, a gentle start and a best score worth chasing.</p><p>Your round, best score and settings stay in this browser. This game has no account, advertising SDK or analytics SDK.</p><p><a class="dialog-link" href="privacy.html" target="_blank" rel="noopener">Privacy & support ↗</a></p>',
+      [button('Back to menu', 'primary', closeDialog)]);
   }
   function loadScene(input) {
     const scene = S.validate(input); cancelRun(); closeDialog(); pauseReasons.delete('manual');
@@ -342,12 +414,17 @@
   else {
     const saved = P.read(P.SAVE_KEY);
     try {
-      if (!saved || !saved.started || saved.over) throw new Error('Fresh round');
-      session = P.validate(saved, S, B); random = B.seededRandom(session.seed, session.rngState); lastStable = clone(session); render();
-      openDialog('continue', 'Your board is waiting.', 'WELCOME BACK', '<p>Your last round is saved. Pick up where you left off.</p>',
-        [button('Continue round', 'primary', closeDialog), button('Start fresh', 'secondary', () => reset())]);
-    } catch { reset(); }
+      if (!saved || !saved.started) throw new Error('Fresh round');
+      session = P.validate(saved, S, B); random = B.seededRandom(session.seed, session.rngState); lastStable = clone(session);
+      if (session.over) lastRound = { score: session.score, cleared: session.cleared, activeCount: session.activeCount };
+      render();
+    } catch { reset(seed(), false, true); }
+    showHome();
   }
+  $('#home-play').addEventListener('click', () => { if (session.started && !session.over) confirmNew(false); else startNew(); });
+  $('#home-continue').addEventListener('click', continueGame);
+  $('#home-help').addEventListener('click', howTo); $('#home-settings').addEventListener('click', settings); $('#home-about').addEventListener('click', about);
+  $('#home-button').addEventListener('click', showHome); $('#pause-button').addEventListener('click', settings); $('#coach-skip').addEventListener('click', finishIntroduction);
   $('#settings').addEventListener('click', settings);
   $('#close-modal').addEventListener('click', () => { if (dialogKind === 'over') return; closeDialog(); });
   els.overlay.addEventListener('click', event => { if (event.target === els.overlay && dialogKind !== 'over') closeDialog(); });
@@ -361,20 +438,33 @@
       return;
     }
     if (event.key === 'Escape') { if (!els.overlay.hidden && dialogKind !== 'over') closeDialog(); else { selected = null; renderTray(); emit('escape'); } return; }
-    if (event.target.matches('input,textarea,select') || !els.overlay.hidden) return;
+    if (event.target.matches('input,textarea,select') || !els.overlay.hidden || homeVisible) return;
     if (/^[123]$/.test(event.key)) selectSlot(Number(event.key) - 1);
     if (event.code === 'Space' && !creator) { event.preventDefault(); settings(); }
   });
   setInterval(() => { tick(); renderHud(); }, 250);
   setInterval(() => { if (!creator && !busy && session.started && !pauseReasons.size) { maybeUnlock(); checkpoint(); } }, 5000);
-  const resize = () => {
-    const cropped = !document.body.classList.contains('board-capture') && (matchMedia('(max-width:800px)').matches || document.body.classList.contains('portrait-mode'));
-    document.documentElement.style.setProperty('--u', `${$('#scene').getBoundingClientRect().width * (cropped ? 100 / 52 : 1) / 100}px`);
-  };
-  new ResizeObserver(resize).observe($('#scene')); window.addEventListener('resize', resize); resize();
+  function resize() {
+    if (!L) return;
+    const app = $('#app'), box = app.getBoundingClientRect();
+    const closeup = document.body.classList.contains('board-capture'), portrait = document.body.classList.contains('portrait-mode');
+    const probe = getComputedStyle($('#safe-probe'));
+    const metrics = L.measure(box.width, box.height, { coach: !$('#coach').hidden, portrait, closeup, controls: !creator,
+      safeTop: parseFloat(probe.paddingTop) || 0, safeBottom: parseFloat(probe.paddingBottom) || 0 });
+    app.classList.toggle('mobile-game', metrics.mobile);
+    app.classList.toggle('compact-game', box.height <= 650);
+    app.classList.toggle('coaching', !$('#coach').hidden);
+    app.style.setProperty('--stage-width', `${metrics.stageWidth}px`);
+    app.style.setProperty('--game-top', `${metrics.top}px`); app.style.setProperty('--game-bottom', `${metrics.bottom}px`);
+    document.documentElement.style.setProperty('--u', `${metrics.unit}px`);
+    renderHud();
+  }
+  window.addEventListener('offline', () => { $('#offline-toast').textContent = 'You’re offline. This loaded round can keep going.'; $('#offline-toast').hidden = false; setTimeout(() => { $('#offline-toast').hidden = true; }, 4500); });
+  window.addEventListener('online', () => { $('#offline-toast').hidden = true; });
+  new ResizeObserver(resize).observe($('#app')); window.addEventListener('resize', resize); resize();
   window.CapGame = { creator, on: fn => { listeners.add(fn); return () => listeners.delete(fn); },
-    snapshot: () => clone(session), status: () => ({ busy, editing, paused: pauseReasons.size > 0, selected, chainCount, picked: { ...editPicked }, move: clone(sceneMove), speed, multiplier }),
-    loadScene, editStack, preparePlay, place, pick(kind, index) { editPicked = { kind, index }; render(); emit('pick'); },
+    snapshot: () => clone(session), status: () => ({ homeVisible, busy, editing, paused: pauseReasons.size > 0, selected, chainCount, picked: { ...editPicked }, move: clone(sceneMove), speed, multiplier }),
+    loadScene, editStack, preparePlay, place, returnHome: showHome, startNew, pick(kind, index) { editPicked = { kind, index }; render(); emit('pick'); },
     setMove(move) { sceneMove = move; render(); }, setEditing(value) { if (busy) return; editing = value; if (value && sceneMove && (session.board[sceneMove.index].length || !session.tray[sceneMove.slot].length)) sceneMove = null; setPause('manual', false); render(); },
     pause(value) { setPause('manual', value); }, setSpeed(value) { tick(); speed = value; animations.forEach(animation => { animation.playbackRate = speed; }); emit('speed'); },
     setMultiplier(value) { multiplier = value; }, setScore(value) { session.score = value; checkpoint(); renderHud(); },

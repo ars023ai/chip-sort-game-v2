@@ -1,6 +1,19 @@
-# Cap Stack Sort · 2.0
+# Cap Stack Sort · 2.1
 
-A complete static bottle-cap puzzle with an endless game and a separate Creator Studio. The approved warm tabletop, molded board and graphite Next tray are retained. The same composition is cropped into a large portrait game on phones.
+A static bottle-cap puzzle with an endless game and a separate Creator Studio. The approved warm tabletop, molded board and graphite Next tray are retained. The same composition is cropped into a large portrait game on phones.
+
+## Player entry and navigation
+
+The web game opens a real loading screen, checks the stylesheet, modules and board/cap images, then opens the main menu. Failed loads show a retry action without clearing saved records. There are no external fonts or runtime packages.
+
+- Play / Continue / New game, best score and the saved round summary.
+- How to play, settings, optional first-clear coaching, privacy and support.
+- Menu and Pause buttons remain at least 44 pixels high. Returning to the menu freezes the round, including an active animation. Continue resumes it; abandoning a round requires a confirmation.
+- The first introduction uses two five-cap matching stacks so the player can make a real ten-cap clear. It can be skipped or repeated from settings. Subsequent games use the ordinary generator.
+- The board fits portrait and landscape viewports. The layout reserves space for phone controls, notch insets and first-game coaching. Small screens have readable HUD labels and count badges.
+- English remains the only language. No account or network connection is required after this page has loaded; reopening offline is not supported.
+
+`?preview=phone`, `?preview=small`, `?preview=tablet` and `?preview=landscape` frame the actual game container at 390×844, 320×568, 768×1024 and 844×390 for browser inspection. These routes use the same resize and layout code as normal play. They are not device emulation or physical-device testing.
 
 ## Play
 
@@ -9,7 +22,7 @@ A complete static bottle-cap puzzle with an endless game and a separate Creator 
 - Orthogonally connected matching tops gather one cap at a time. A group of 10+ clears in full. Buried colors remain and can start another reaction.
 - Every cleared cap earns 10 points. BEST persists locally. A full board ends the game only after all reactions finish.
 - The timer starts on the first move and freezes while paused, while the tab is hidden, and after Game Over. Settings pause active animations too.
-- Completed moves are saved locally. Reopening offers to continue. Closing during an animation returns to the previous completed move. Creator scenes use separate storage and never affect game records.
+- Completed moves are saved locally. Reopening shows the main menu with Continue. Closing during an animation returns to the previous completed move. Creator scenes use separate storage and never affect game records.
 
 ## Endless progression
 
@@ -57,6 +70,20 @@ npm run build
 npm run simulate
 ```
 
-`dist/` contains only the twelve production files. GitHub Pages publishes this folder after all regression tests pass. Tests cover thresholds, buried layers, adjacency, progression and intro persistence, rescue probabilities, 300 scene variations, JSON links, storage validation, pause/resume, cancellation during placement/merge/clear, editor undo, Super Score isolation, and the frozen Game Over timer.
+`dist/` contains only the fifteen production files. GitHub Pages publishes this folder after all regression tests pass. Tests cover thresholds, buried layers, adjacency, progression and intro persistence, rescue probabilities, 300 scene variations, JSON links, storage validation, pause/resume, cancellation during placement/merge/clear, editor undo, Super Score isolation, the frozen Game Over timer, home/continue/restart transitions, first-clear coaching, loader failures, nine viewport sizes, safe-area reservations and cap containment.
 
-Version: 2.0.3 · October 13, 2026.
+Version: 2.1.0 · October 13, 2026.
+
+## Release assessment
+
+This repository produces a playable public web build. It does not yet contain a signed Android App Bundle, an Xcode/iOS project or a signed App Store build. Publishing GitHub Pages does not produce either store package.
+
+Before a store release:
+
+1. Package the bundled game for Android and iOS, integrate platform lifecycle/save behavior, define a stable application identifier and release signing, and keep Creator Studio out of the player package or disclose it for review. A store package should include its assets and launch offline.
+2. Run on physical Android phones and iPhones, including safe-area layouts, touch dragging, audio activation, background/foreground, installation/update, and offline launch. Browser frame inspection and automated layout checks do not verify those platform behaviors.
+3. Replace third-party cap trademarks with original artwork, or document permission to use them. Current assets include Red Bull branding. No license evidence is included in this repository.
+4. Prepare original app icons, real gameplay screenshots, store descriptions, age-rating answers, a support contact and platform privacy/Data safety disclosures that match the actual packaged application. Creator Super Score footage should not misrepresent ordinary scoring.
+5. Playtest longer human runs through the later unlocks. Automated policies currently stop below the final brand threshold, so late progression is not yet supported by human-play evidence.
+
+Official submission references: [Apple App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/), [Google Play testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465), [Android target API requirements](https://support.google.com/googleplay/android-developer/answer/11926878), and [Google Play User Data policy](https://support.google.com/googleplay/android-developer/answer/10144311). Verify the applicable deadlines and account requirements at submission time. Store acceptance is a separate review and is not guaranteed by this build.

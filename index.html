@@ -11,9 +11,12 @@
   <title>Cap Stack Sort</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/master-caps.webp" as="image">
-  <link rel="stylesheet" href="styles.css?v=2.0.3">
+  <link id="game-styles" rel="stylesheet" href="styles.css?v=2.1.0" onload="this.dataset.loaded='true'" onerror="this.dataset.failed='true'">
+<style>.boot-screen{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#233328;color:#f4e7c6;font:16px Arial;text-align:center;padding:24px}.boot-screen[hidden]{display:none}.boot-content{max-width:350px}.boot-mark{font-weight:900;font-size:48px;line-height:.9}.boot-mark span{display:block;color:#ffd270}.boot-mark small{display:block;font-size:22px;letter-spacing:.14em;margin:10px 0 28px}.boot-content progress{width:100%;height:7px;accent-color:#ffd270}.boot-content button{margin-top:20px;padding:14px 28px;border:0;border-radius:12px}</style>
 </head>
 <body>
+  <div id="app" class="game-app">
+  <div class="safe-probe" id="safe-probe" aria-hidden="true"></div>
   <div class="play-area" id="play-area">
     <div class="scene" id="scene">
       <h1 class="sr-only">Cap Stack Sort</h1>
@@ -33,14 +36,33 @@
         <p class="hint" id="hint">Pick a stack. Tap an empty cell.</p>
         <div class="chain-flash" id="chain-flash" aria-hidden="true"></div>
       </main>
-      <button class="settings" id="settings" aria-label="Pause and settings" title="Pause and settings">
+      <button class="settings legacy-settings" id="settings" aria-label="Pause and settings" title="Pause and settings">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.6 3h4.8l.7 2.6 2.3 1.3 2.6-.7 2.4 4.2-1.9 1.9v2.5l1.9 1.9-2.4 4.2-2.6-.7-2.3 1.3-.7 2.6H9.6l-.7-2.6-2.3-1.3-2.6.7-2.4-4.2 1.9-1.9v-2.5l-1.9-1.9L4 6.2l2.6.7 2.3-1.3L9.6 3Z" transform="translate(1 -1) scale(.9)"/><circle cx="12" cy="12" r="3.5"/></svg>
       </button>
     </div>
   </div>
-  <aside id="studio" class="studio" aria-label="Creator Studio" hidden></aside>
-  <button class="capture-exit" id="capture-exit" hidden>Exit capture · Esc</button>
-  <div class="banner" id="banner" role="status"><small id="banner-title"></small><b id="banner-text"></b></div>
+  <nav class="game-toolbar" id="game-toolbar" aria-label="Game controls" hidden>
+    <button id="home-button" class="nav-control" aria-label="Return to main menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v11h-7v-7h-4v7H3Z"/></svg><span>Menu</span></button>
+    <button id="pause-button" class="nav-control" aria-label="Pause game"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zm8 0h4v16h-4Z"/></svg><span>Pause</span></button>
+  </nav>
+  <div class="coach" id="coach" role="status" hidden><div><strong id="coach-title">Your first move</strong><span id="coach-text"></span></div><button id="coach-skip" aria-label="Skip the introduction">Skip</button></div>
+  <section class="home-screen" id="home-screen" aria-label="Main menu" hidden>
+    <div class="home-layout">
+      <div class="home-hero"><div class="home-wordmark" aria-label="Cap Stack Sort"><span>CAP</span><b>STACK</b><small>SORT</small></div><p>Small moves.<br>Big chain reactions.</p><div class="hero-caps" aria-hidden="true"><i></i><i></i><i></i></div></div>
+      <div class="home-card"><div class="eyebrow" id="home-eyebrow">YOUR NEXT BEST STARTS HERE</div><h2 id="home-title">One more good move.</h2>
+        <div class="home-best"><span>YOUR BEST</span><strong id="home-best">0</strong><small>16 caps to discover. No time limit.</small></div>
+        <p class="home-round" id="home-round" hidden></p>
+        <button id="home-continue" class="primary home-primary" hidden>Continue</button>
+        <button id="home-play" class="primary home-primary">Play</button>
+        <div class="home-links"><button class="secondary" id="home-help">How to play</button><button class="secondary" id="home-settings">Settings</button></div>
+        <div class="home-footer"><button id="home-about">About & privacy</button><span>ArsCorp · 2.1</span></div>
+      </div>
+    </div>
+  </section>
+  <section class="boot-screen" id="boot-screen" aria-label="Loading game" aria-live="polite">
+    <div class="boot-content"><div class="boot-mark">CAP<span>STACK</span><small>SORT</small></div><h2 id="boot-title">A good move is coming.</h2><p id="boot-text">Preparing your board…</p><progress id="boot-progress" max="100" value="0" aria-label="Loading progress"></progress><button id="boot-retry" class="primary" hidden>Try again</button><noscript><p>JavaScript is needed to play. Enable it and reload this page.</p></noscript></div>
+  </section>
+  <div class="offline-toast" id="offline-toast" role="status" hidden></div>
   <div class="overlay" id="overlay" hidden>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
       <button class="modal-x" id="close-modal" aria-label="Close dialog">×</button>
@@ -51,12 +73,13 @@
     </section>
   </div>
   <div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
-  <script src="rules.js?v=2.0.3"></script>
-  <script src="balance.js?v=2.0.3"></script>
-  <script src="scenes.js?v=2.0.3"></script>
-  <script src="session.js?v=2.0.3"></script>
-  <script src="sound.js?v=2.0.3"></script>
-  <script src="game.js?v=2.0.3"></script>
-  <script src="studio.js?v=2.0.3"></script>
+  </div>
+  <aside id="studio" class="studio" aria-label="Creator Studio" hidden></aside>
+  <button class="capture-exit" id="capture-exit" hidden>Exit capture · Esc</button>
+  <div class="banner" id="banner" role="status"><small id="banner-title"></small><b id="banner-text"></b></div>
+  <script>
+  window.capLoadError = function () { var box=document.getElementById('boot-screen'); box.hidden=false; document.getElementById('boot-title').textContent='The board could not load.'; document.getElementById('boot-text').textContent='Check your connection and try again.'; document.getElementById('boot-progress').hidden=true; var retry=document.getElementById('boot-retry'); retry.hidden=false; retry.onclick=function(){ location.reload(); }; };
+  </script>
+  <script src="boot.js?v=2.1.0" defer onerror="capLoadError()"></script>
 </body>
 </html>

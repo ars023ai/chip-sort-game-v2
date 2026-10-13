@@ -9,7 +9,7 @@
   function create(seed) {
     return { version: 2, seed: seed >>> 0, rngState: seed >>> 0, board: Array.from({ length: 30 }, () => []),
       tray: [[], [], []], introSlots: [null, null, null], score: 0, cleared: 0, moves: 0, elapsedMs: 0,
-      started: false, over: false, activeCount: 4, presenting: null, warmupCleared: null };
+      started: false, over: false, tutorial: false, activeCount: 4, presenting: null, warmupCleared: null };
   }
   function validate(input, scenes, balance) {
     if (!input || input.version !== 2 || !Number.isSafeInteger(input.score) || input.score < 0 || input.score > 1e12 ||
@@ -20,6 +20,7 @@
       !Number.isInteger(input.activeCount) || input.activeCount < 4 || input.activeCount > 16 ||
       typeof input.started !== 'boolean' || typeof input.over !== 'boolean') throw new Error('Invalid saved game.');
     const result = clone(input), valid = new Set(balance.activeBrands(input.activeCount));
+    result.tutorial = input.tutorial === true;
     result.board = scenes.validateStacks(input.board, 30, 10000);
     result.tray = scenes.validateStacks(input.tray, 3, 6);
     if ([...result.board, ...result.tray].some(stack => stack.some(id => !valid.has(id)))) throw new Error('Saved game contains a locked brand.');

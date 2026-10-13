@@ -1,9 +1,9 @@
 {
   "name": "cap-stack-sort",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
-    "test": "node tests/rules.cjs && node tests/progression.cjs && node tests/scenes.cjs && node tests/session.cjs && node tests/lifecycle.cjs",
+    "test": "node tests/rules.cjs && node tests/progression.cjs && node tests/scenes.cjs && node tests/session.cjs && node tests/lifecycle.cjs && node tests/layout.cjs && node tests/boot.cjs",
     "build": "node scripts/build.cjs",
     "simulate": "node tests/balance-sim.cjs"
   },
