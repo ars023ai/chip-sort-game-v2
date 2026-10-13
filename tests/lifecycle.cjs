@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path');
 const { JSDOM } = require('jsdom');
 const root = path.resolve(__dirname, '..');
-function harness(creator, saved, best = 9876, motion = false) {
+function harness(creator, saved, best = 9876, motion = false, frameLess = false) {
   const dom = new JSDOM(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), { url: 'https://game.example/' + (creator ? '?creator=1' : ''), runScripts: 'outside-only', pretendToBeVisual: true });
   const w = dom.window; let now = 0, id = 0; const tasks = new Map(), errors = [];
   Object.defineProperty(w.performance, 'now', { value: () => now });
@@ -11,7 +11,7 @@ function harness(creator, saved, best = 9876, motion = false) {
   w.clearTimeout = n => tasks.delete(n);
   w.setInterval = (fn, delay) => { const n = ++id; tasks.set(n, { fn, at: now + delay, every: delay }); return n; };
   w.clearInterval = w.clearTimeout;
-  w.requestAnimationFrame = fn => w.setTimeout(() => fn(now), 16); w.cancelAnimationFrame = w.clearTimeout;
+  w.requestAnimationFrame = fn => frameLess ? ++id : w.setTimeout(() => fn(now), 16); w.cancelAnimationFrame = w.clearTimeout;
   w.Element.prototype.animate = function (_, options) {
     let remaining = options.duration, previous = now, playing = true, frame, stopped = false, resolve, reject;
     const finished = new Promise((yes, no) => { resolve = yes; reject = no; });
@@ -79,6 +79,11 @@ function harness(creator, saved, best = 9876, motion = false) {
   const endRun = G.place(0, 29); await h.advance(3000); await endRun; assert.equal(G.snapshot().over, true);
   const endedAt = G.snapshot().elapsedMs; await h.advance(10000); assert.equal(G.snapshot().elapsedMs, endedAt);
   assert.equal(await G.place(0, 1), false); assert.equal(h.errors.length, 0); h.close();
+  const f = harness(true, null, 9876, true, true), stalledScene = f.S.preset('spark', 2);
+  f.G.loadScene(stalledScene); f.G.preparePlay(); const withoutFrames = f.G.place(stalledScene.move.slot, stalledScene.move.index);
+  await f.advance(16000); assert.equal(await withoutFrames, true); assert.equal(f.G.snapshot().cleared, 39);
+  assert.equal(f.G.status().busy, false); const finishedTime = f.G.snapshot().elapsedMs;
+  await f.advance(10000); assert.equal(f.G.snapshot().elapsedMs, finishedTime, 'completed creator take freezes time'); f.close();
   const P = require('../session.js'); const saved = P.create(1); saved.started = true; saved.tray = [[0,0,0,0],[1,1,1,1],[2,2,2,2]]; saved.elapsedMs = 12000;
   const n = harness(false, saved); assert.equal(n.w.document.querySelector('#modal-title').textContent, 'Your board is waiting.');
   await n.advance(5000); assert.equal(n.G.snapshot().elapsedMs, 12000); n.press('Continue round'); await n.advance(3000);

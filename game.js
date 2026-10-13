@@ -11,7 +11,7 @@
   const savedOptions = P.read(P.OPTIONS_KEY, {});
   const options = { sound: savedOptions.sound !== false, motion: savedOptions.motion ?? !matchMedia('(prefers-reduced-motion: reduce)').matches };
   let best = Math.max(0, Math.min(1e12, Number(P.read(P.BEST_KEY, 0)) || 0));
-  let session, random, selected = null, busy = false, pauseReasons = new Set(), lastTick = performance.now();
+  let session, random, selected = null, busy = false, pauseReasons = new Set(), lastTick = performance.now(), motionClock = 0;
   let controller = new AbortController(), lastStable, dialogKind = '', previousFocus = null, drag = null;
   let editing = creator, editPicked = { kind: 'board', index: 12 }, sceneMove = null, speed = 1, multiplier = 1;
   const animations = new Set(), listeners = new Set(), cells = [], slots = [];
@@ -27,7 +27,9 @@
   function assertLive(signal) { if (signal.aborted) throw abortError(); }
   function tick() {
     const now = performance.now();
-    if (session?.started && !session.over && !pauseReasons.size && !editing) session.elapsedMs += Math.min(now - lastTick, 1000);
+    const delta = Math.max(0, now - lastTick);
+    if (!pauseReasons.size) motionClock += delta * speed;
+    if (session?.started && !session.over && !pauseReasons.size && !editing) session.elapsedMs += delta;
     lastTick = now;
   }
   function setPause(reason, paused) {
@@ -47,19 +49,20 @@
     emit('cancel');
   }
   function wait(ms, signal) {
-    assertLive(signal);
+    assertLive(signal); tick();
+    const deadline = motionClock + ms;
     return new Promise((resolve, reject) => {
-      let previous = performance.now(), passed = 0, frame;
-      const stop = () => { cancelAnimationFrame(frame); reject(abortError()); };
+      let timer;
+      const stop = () => { clearTimeout(timer); reject(abortError()); };
       signal.addEventListener('abort', stop, { once: true });
-      const step = now => {
+      const step = () => {
         if (signal.aborted) return;
-        if (!pauseReasons.size) passed += Math.min(now - previous, 50) * speed;
-        previous = now;
-        if (passed >= ms) { signal.removeEventListener('abort', stop); resolve(); }
-        else frame = requestAnimationFrame(step);
+        tick();
+        const remaining = deadline - motionClock;
+        if (remaining <= 0) { signal.removeEventListener('abort', stop); resolve(); }
+        else timer = setTimeout(step, pauseReasons.size ? 30 : Math.max(4, Math.min(30, remaining / speed)));
       };
-      frame = requestAnimationFrame(step);
+      timer = setTimeout(step, 8);
     });
   }
   function cap(brand, extra = '') {
@@ -169,10 +172,11 @@
     ];
     const animation = node.animate(frames, { duration, easing: 'cubic-bezier(.22,.7,.28,1)', fill: 'forwards' });
     animation.playbackRate = speed; animations.add(animation); if (pauseReasons.size) animation.pause();
+    animation.finished.catch(() => {});
     const abort = () => animation.cancel(); signal.addEventListener('abort', abort, { once: true });
-    try { await animation.finished; assertLive(signal); }
+    try { await wait(duration, signal); assertLive(signal); }
     catch { assertLive(signal); }
-    finally { animations.delete(animation); signal.removeEventListener('abort', abort); node.remove(); }
+    finally { animations.delete(animation); signal.removeEventListener('abort', abort); animation.cancel(); node.remove(); }
   }
   function scorePulse() { els.scoreCard.classList.remove('score-hit'); void els.scoreCard.offsetWidth; els.scoreCard.classList.add('score-hit'); }
   function chainFlash() {
@@ -224,7 +228,7 @@
       const plan = R.planResolution(session.board, index);
       await wait(80, signal); await playPlan(plan, signal); assertLive(signal);
       session.moves++; B.placedIntro(session, intro); maybeUnlock(); refill();
-      session.over = R.gameOver(session.board); checkpoint(); render();
+      session.over = R.gameOver(session.board); if (creator) { tick(); session.started = false; } checkpoint(); render();
       if (session.over) { audio('gameover'); showGameOver(); }
       else if (creator) { announce(`Scene finished. ${chainCount} chains. Score ${session.score}.`); emit('complete'); }
       else announce(`Score ${session.score}. ${session.board.filter(stack => !stack.length).length} empty cells.`);
@@ -372,7 +376,7 @@
     snapshot: () => clone(session), status: () => ({ busy, editing, paused: pauseReasons.size > 0, selected, chainCount, picked: { ...editPicked }, move: clone(sceneMove), speed, multiplier }),
     loadScene, editStack, preparePlay, place, pick(kind, index) { editPicked = { kind, index }; render(); emit('pick'); },
     setMove(move) { sceneMove = move; render(); }, setEditing(value) { if (busy) return; editing = value; if (value && sceneMove && (session.board[sceneMove.index].length || !session.tray[sceneMove.slot].length)) sceneMove = null; setPause('manual', false); render(); },
-    pause(value) { setPause('manual', value); }, setSpeed(value) { speed = value; animations.forEach(animation => { animation.playbackRate = speed; }); emit('speed'); },
+    pause(value) { setPause('manual', value); }, setSpeed(value) { tick(); speed = value; animations.forEach(animation => { animation.playbackRate = speed; }); emit('speed'); },
     setMultiplier(value) { multiplier = value; }, setScore(value) { session.score = value; checkpoint(); renderHud(); },
     setSound(value) { options.sound = value; P.write(P.OPTIONS_KEY, options); }, showBanner, resize,
     exportScene(name) { const move = sceneMove && !session.board[sceneMove.index].length && session.tray[sceneMove.slot].length ? clone(sceneMove) : null; return S.validate({ version: 1, name, seed: session.seed, score: session.score, elapsed: seconds(), board: clone(session.board), tray: clone(session.tray), playback: { speed, multiplier }, move }); } };
