@@ -127,3 +127,16 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:man
 .compact-game:not(.mobile-game) .hud-card b{font-size:max(16px,calc(var(--u)*2.02));margin-top:2px}
 .compact-game:not(.mobile-game) .stack-count{font-size:max(10px,calc(var(--u)*.89));min-width:max(17px,calc(var(--u)*1.65));height:max(17px,calc(var(--u)*1.65))}
 .compact-game:not(.mobile-game) .coach{right:12px;max-width:220px;bottom:12px}
+
+/* Keep a saved round's actions visible in the shortest supported menu. */
+.compact-game.mobile-game .home-layout{gap:10px}
+.compact-game.mobile-game .home-round{margin-bottom:10px}
+.compact-game.mobile-game .home-links{margin-top:2px}
+.compact-game.mobile-game .home-best{padding:8px;margin-bottom:9px}
+.compact-game:not(.mobile-game) .home-card{display:grid;grid-template-columns:1fr 1fr;column-gap:9px}
+.compact-game:not(.mobile-game) .home-card>*{grid-column:1/-1}
+.compact-game:not(.mobile-game) .home-card.has-round #home-continue,.compact-game:not(.mobile-game) .home-card.has-round #home-play{grid-column:auto}
+.compact-game:not(.mobile-game) .home-card h2{margin-bottom:8px}
+.compact-game:not(.mobile-game) .home-best{padding:6px}
+.compact-game:not(.mobile-game) .home-primary{margin-bottom:8px}
+.compact-game:not(.mobile-game) .home-links{margin-top:2px}

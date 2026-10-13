@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = '2.1.0', $ = id => document.getElementById(id);
+  const VERSION = '2.1.1', $ = id => document.getElementById(id);
   const modules = ['rules.js', 'balance.js', 'scenes.js', 'session.js', 'layout.js', 'sound.js'];
   const assets = ['assets/master-caps.webp', 'assets/reference-approved-b-v4.webp'];
   const query = new URLSearchParams(location.search), preview = query.get('preview');

@@ -353,6 +353,7 @@
     closeDialog(); setPause('home', true); homeVisible = true; selected = null;
     $('#home-screen').hidden = false; $('#play-area').inert = true; $('#game-toolbar').hidden = true;
     const canContinue = session.started && !session.over;
+    $('.home-card').classList.toggle('has-round', canContinue);
     $('#home-best').textContent = best.toLocaleString('en-US');
     $('#home-continue').hidden = !canContinue;
     $('#home-play').textContent = canContinue ? 'New game' : 'Play';
@@ -378,6 +379,7 @@
       $('#coach-title').textContent = cleared ? 'Nice. Your first clear!' : session.moves ? 'Bring them together' : 'Your first move';
       $('#coach-text').textContent = cleared ? 'Each cap gives 10 points. Keep room for the next set.' : session.moves ? 'Put matching caps next to each other.' : 'Tap a stack, then an empty cell.';
       $('#coach-skip').textContent = cleared ? 'Got it' : 'Skip';
+      $('#coach-skip').setAttribute('aria-label', cleared ? 'Finish the introduction' : 'Skip the introduction');
       if (!cleared && !busy) {
         const anchor = session.board.findIndex(stack => R.top(stack) === 0), slot = session.tray.findIndex(stack => R.top(stack) === 0);
         if (slot >= 0) slots[slot].classList.add('guide-target');
