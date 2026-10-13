@@ -5,7 +5,9 @@ const { JSDOM } = require('jsdom');
 const root = path.resolve(__dirname, '..');
 function harness(creator, saved, best = 9876, motion = false, frameLess = false) {
   const dom = new JSDOM(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), { url: 'https://game.example/' + (creator ? '?creator=1' : ''), runScripts: 'outside-only', pretendToBeVisual: true });
-  const w = dom.window; let now = 0, id = 0; const tasks = new Map(), errors = [];
+  const w = dom.window; let now = 0, id = 0, copiedLink; const tasks = new Map(), errors = [];
+  w.TextEncoder = TextEncoder; w.TextDecoder = TextDecoder;
+  Object.defineProperty(w.navigator, 'clipboard', { value: { writeText: async value => { copiedLink = value; } } });
   Object.defineProperty(w.performance, 'now', { value: () => now });
   w.setTimeout = (fn, delay = 0) => { const n = ++id; tasks.set(n, { fn, at: now + delay }); return n; };
   w.clearTimeout = n => tasks.delete(n);
@@ -44,7 +46,7 @@ function harness(creator, saved, best = 9876, motion = false, frameLess = false)
     }
   }
   const press = text => { const button = [...w.document.querySelectorAll('button')].find(node => node.textContent.trim() === text); assert(button, `button ${text}`); button.click(); };
-  return { w, G: w.CapGame, S: w.CapScenes, advance, press, errors, close: () => dom.window.close() };
+  return { w, G: w.CapGame, S: w.CapScenes, advance, press, errors, link: () => copiedLink, close: () => dom.window.close() };
 }
 (async () => {
   const h = harness(true, null, 9876, true), { G, S } = h;
@@ -73,6 +75,14 @@ function harness(creator, saved, best = 9876, motion = false, frameLess = false)
   h.press('Undo'); assert.equal(G.snapshot().board[12].length, 0);
   h.w.document.querySelector('#scene-json').value = '{"version":99}'; h.press('Import JSON');
   assert(h.w.document.querySelector('#studio-status').classList.contains('error'));
+  h.press('Generate scene'); h.w.document.querySelector('#scene-speed').value = '2'; h.w.document.querySelector('#scene-speed').dispatchEvent(new h.w.Event('change'));
+  h.w.document.querySelector('#super-score').checked = true; h.w.document.querySelector('#super-score').dispatchEvent(new h.w.Event('change'));
+  h.press('▶ Play the trigger'); await h.advance(18000); assert.equal(G.status().busy, false);
+  h.w.document.querySelector('#scene-speed').value = '1.5'; h.w.document.querySelector('#scene-speed').dispatchEvent(new h.w.Event('change'));
+  h.w.document.querySelector('#super-score').checked = false; h.w.document.querySelector('#super-score').dispatchEvent(new h.w.Event('change'));
+  h.press('Copy scene link'); await Promise.resolve();
+  const exported = S.decode(new URL(h.link()).hash.slice('#scene='.length));
+  assert.deepEqual(JSON.parse(JSON.stringify(exported.playback)), { speed: 1.5, multiplier: 1 }, 'shared scene includes current playback controls after a take');
   // A full stable board with no adjacent matching tops must end the game and freeze time.
   const full = S.preset('spark', 0); full.board = Array.from({ length: 30 }, (_, i) => [(Math.floor(i/5) + i%5) % 4]);
   full.board[29] = []; full.tray = [[1],[],[]]; full.move = {slot:0,index:29}; G.loadScene(full); G.preparePlay();

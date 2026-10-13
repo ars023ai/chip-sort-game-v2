@@ -59,4 +59,4 @@ npm run simulate
 
 `dist/` contains only the twelve production files. GitHub Pages publishes this folder after all regression tests pass. Tests cover thresholds, buried layers, adjacency, progression and intro persistence, rescue probabilities, 300 scene variations, JSON links, storage validation, pause/resume, cancellation during placement/merge/clear, editor undo, Super Score isolation, and the frozen Game Over timer.
 
-Version: 2.0.2 · October 13, 2026.
+Version: 2.0.3 · October 13, 2026.

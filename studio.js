@@ -155,7 +155,7 @@
     records.forEach((scene, i) => { const option = document.createElement('option'); option.value = i; option.textContent = scene.name; select.append(option); });
     $('#load-saved').disabled = !records.length;
   }
-  function sceneForSaving() { if (G.status().editing) keep(); return S.validate({ ...template, name: currentName() }); }
+  function sceneForSaving() { if (G.status().editing) keep(); const { speed, multiplier } = G.status(); return S.validate({ ...template, name: currentName(), playback: { speed, multiplier } }); }
   $('#generate').addEventListener('click', () => safely(() => {
     const value = Number($('#scene-seed').value); if (!Number.isInteger(value) || value < 0 || value > 0xFFFFFFFF) throw new Error('Seed must be between 0 and 4294967295.');
     load(S.preset($('#preset').value, value));
