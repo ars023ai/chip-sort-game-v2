@@ -17,4 +17,4 @@ async function run(fail) {
  else{assert.equal(w.document.querySelector('#boot-screen').hidden,true);assert.equal(w.document.querySelector('#boot-progress').value,100);assert.equal(w.document.querySelector('#home-screen').hidden,false);assert.equal(w.CapGame.status().homeVisible,true);assert(requested.indexOf('game.js')>requested.indexOf('layout.js'));}
  dom.window.close();
 }
-(async()=>{await run();await run('styles.css');await run('balance.js');await run('assets/master-caps.webp');console.log('PASS: real loader dependencies, full progress, stylesheet/script/image failure and preserved records');})().catch(error=>{console.error(error);process.exitCode=1});
+(async()=>{await run();await run('styles.css');await run('balance.js');await run('assets/master-caps-red-rull-v1.webp');console.log('PASS: real loader dependencies, full progress, stylesheet/script/image failure and preserved records');})().catch(error=>{console.error(error);process.exitCode=1});

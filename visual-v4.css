@@ -1,4 +1,4 @@
-:root{--cap:74px;--cell-h:82px;--gap:6px;--ink:#3b2d22;--sprite:url('assets/master-caps.webp?v=20260922c');--arscap:none}
+:root{--cap:74px;--cell-h:82px;--gap:6px;--ink:#3b2d22;--sprite:url('assets/master-caps-red-rull-v1.webp?v=20260922c');--arscap:none}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;min-height:100%;overflow:hidden}body{font-family:Inter,Arial,sans-serif;color:var(--ink);user-select:none;background:#d9ad7b}
 body:before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent 0 86px,#8e5f3320 87px,#fff8e32c 89px),linear-gradient(108deg,#c58f5e,#efd0a7 38%,#d7a570 72%,#b77f4f);z-index:-3}
 .table-light{position:fixed;inset:-10%;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 48% 28%,#fff6d78c,transparent 42%),linear-gradient(112deg,transparent 14%,#fff9df46 27%,transparent 44%);filter:blur(7px)}

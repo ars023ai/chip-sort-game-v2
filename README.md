@@ -38,7 +38,7 @@ The first 180 active seconds stay at four brands, with large monochrome stacks o
 | 11 / 12 | 4,700 / 5,000 |
 | 13 / 14 | 5,900 / 6,200 |
 | 15 | 7,100 |
-| 16 · Red Bull | 8,000 |
+| 16 · RED RULL | 8,000 |
 
 Every new brand gets exactly three guaranteed monochrome stacks. All three must be played before another brand can open. Ordinary mixed generation excludes a brand until its introduction is finished. The final thresholds are difficult milestones, not promised completion scores.
 
@@ -72,7 +72,7 @@ npm run simulate
 
 `dist/` contains only the fifteen production files. GitHub Pages publishes this folder after all regression tests pass. Tests cover thresholds, buried layers, adjacency, progression and intro persistence, rescue probabilities, 300 scene variations, JSON links, storage validation, pause/resume, cancellation during placement/merge/clear, editor undo, Super Score isolation, the frozen Game Over timer, home/continue/restart transitions, first-clear coaching, loader failures, nine viewport sizes, safe-area reservations and cap containment.
 
-Version: 2.1.1 · October 13, 2026.
+Version: 2.1.2 · October 13, 2026.
 
 ## Release assessment
 
@@ -82,7 +82,7 @@ Before a store release:
 
 1. Package the bundled game for Android and iOS, integrate platform lifecycle/save behavior, define a stable application identifier and release signing, and keep Creator Studio out of the player package or disclose it for review. A store package should include its assets and launch offline.
 2. Run on physical Android phones and iPhones, including safe-area layouts, touch dragging, audio activation, background/foreground, installation/update, and offline launch. Browser frame inspection and automated layout checks do not verify those platform behaviors.
-3. Replace third-party cap trademarks with original artwork, or document permission to use them. Current assets include Red Bull branding. No license evidence is included in this repository.
+3. Replace third-party cap trademarks with original artwork, or document permission to use them. The final energy cap is the approved fictional RED RULL, silver-blue with an original angular R mark. Its real-brand reference name and bull/sun emblem are not part of the production atlas. A fictional name alone is not a legal clearance for other reference-inspired cap artwork.
 4. Prepare original app icons, real gameplay screenshots, store descriptions, age-rating answers, a support contact and platform privacy/Data safety disclosures that match the actual packaged application. Creator Super Score footage should not misrepresent ordinary scoring.
 5. Playtest longer human runs through the later unlocks. Automated policies currently stop below the final brand threshold, so late progression is not yet supported by human-play evidence.
 

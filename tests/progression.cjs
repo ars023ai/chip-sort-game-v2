@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const B = require('../balance.js');
 const board = () => Array.from({ length: 30 }, () => []);
 assert.equal(new Set(B.BRAND_ORDER).size, 16);
-assert.equal(B.BRAND_ORDER.at(-1), 6, 'Red Bull is the sixteenth brand');
+assert.equal(B.BRAND_ORDER.at(-1), 6, 'RED RULL is the sixteenth brand');
 assert.deepEqual(B.UNLOCK_CLEARS.slice(6, 14).filter((_, i) => i % 2).map((x, i) => x - B.UNLOCK_CLEARS[6 + i * 2]), [30,30,30,30]);
 {
   const p = B.initialProgression();

@@ -4,7 +4,7 @@
   if (root) root.CapScenes = api;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
-  const NAMES = ['COLA', 'PEPZI', 'FUNTI', 'SPRYT', 'Dr. Popper', 'SWEPS', 'RED BULL', 'Monstr',
+  const NAMES = ['COLA', 'PEPZI', 'FUNTI', 'SPRYT', 'Dr. Popper', 'SWEPS', 'RED RULL', 'Monstr',
     'PRYME', 'Poppy', 'San Aqua', 'Mountain Brew', 'NESTI', 'Liquid Dead', 'EVIEN', 'Grape Crushr'];
   const COLORS = ['#e42721', '#1855e4', '#ff921b', '#1b9644', '#8b1c35', '#f8d535', '#8d9ebd', '#81b631',
     '#f436ae', '#f790b7', '#80d5ef', '#8ecd48', '#35cae6', '#474d53', '#99c4ec', '#9951d8'];

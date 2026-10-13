@@ -1,4 +1,4 @@
-:root{color-scheme:light;--ink:#32281f;--gold:#ffd24a;--sprite:url('assets/master-caps.webp');--u:10px;--cap:calc(var(--u)*6.5)}
+:root{color-scheme:light;--ink:#32281f;--gold:#ffd24a;--sprite:url('assets/master-caps-red-rull-v1.webp');--u:10px;--cap:calc(var(--u)*6.5)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;width:100%}body{font-family:Arial,Helvetica,sans-serif;background:#cda475;color:var(--ink);overflow:hidden;user-select:none}
 button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{cursor:default;opacity:.4}button:focus-visible,a:focus-visible{outline:3px solid #fff4ac;outline-offset:3px}button{color:inherit}

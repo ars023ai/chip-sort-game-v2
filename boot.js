@@ -1,8 +1,8 @@
 (function () {
   'use strict';
-  const VERSION = '2.1.1', $ = id => document.getElementById(id);
+  const VERSION = '2.1.2', $ = id => document.getElementById(id);
   const modules = ['rules.js', 'balance.js', 'scenes.js', 'session.js', 'layout.js', 'sound.js'];
-  const assets = ['assets/master-caps.webp', 'assets/reference-approved-b-v4.webp'];
+  const assets = ['assets/master-caps-red-rull-v1.webp', 'assets/reference-approved-b-v4.webp'];
   const query = new URLSearchParams(location.search), preview = query.get('preview');
   if (['phone', 'small', 'tablet', 'landscape'].includes(preview)) { document.body.classList.add('device-preview'); $('app').dataset.preview = preview; }
   let done = 0, timeout, failed = false;
