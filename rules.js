@@ -46,22 +46,32 @@
     return moved;
   };
   const resolveInstant = (board, start) => {
-    let cleared = 0, changed = true, guard = 0, anchor = start;
-    while (changed && guard++ < 200) {
-      changed = false;
-      if (top(board[anchor]) != null) {
-        if (component(board, anchor).length > 1) { gatherInstant(board, anchor); changed = true; }
-        const n = clearTop(board[anchor]); if (n) { cleared += n; changed = true; }
-      }
-      if (!changed) {
-        for (let i = 0; i < CELLS; i++) {
-          if (top(board[i]) == null) continue;
-          if (component(board, i).length > 1 || topRun(board[i]) >= CLEAR_AT) { anchor = i; changed = true; break; }
-        }
-      }
-    }
-    return cleared;
+    const result = planResolution(board, start);
+    for (let i = 0; i < CELLS; i++) board[i] = result.board[i];
+    return result.cleared;
   };
   const gameOver = board => board.every(s => s && s.length > 0);
-  return { ROWS, COLS, CELLS, CLEAR_AT, top, topRun, neighbors, component, clearTop, gatherInstant, resolveInstant, gameOver };
+  // The renderer plays this exact plan, so simulations use identical decisions.
+  const planResolution = (input, start) => {
+    const board = input.map(stack => stack.slice()), events = [];
+    let anchor = start, cleared = 0, guard = 0;
+    while (guard++ < 10000) {
+      const canResolve = i => top(board[i]) != null && (component(board, i).length > 1 || topRun(board[i]) >= CLEAR_AT);
+      if (anchor == null || !canResolve(anchor)) anchor = board.findIndex((_, i) => canResolve(i));
+      if (anchor < 0) return { board, events, cleared };
+      const brand = top(board[anchor]);
+      for (const src of component(board, anchor)) {
+        if (src === anchor) continue;
+        const count = topRun(board[src]);
+        board[src].splice(board[src].length - count, count);
+        board[anchor].push(...Array(count).fill(brand));
+        events.push({ type: 'merge', from: src, to: anchor, brand, count });
+      }
+      const count = clearTop(board[anchor]);
+      if (count) { events.push({ type: 'clear', index: anchor, brand, count }); cleared += count; }
+      anchor = null;
+    }
+    throw new Error('Resolution did not converge');
+  };
+  return { ROWS, COLS, CELLS, CLEAR_AT, top, topRun, neighbors, component, clearTop, gatherInstant, resolveInstant, gameOver, planResolution };
 });

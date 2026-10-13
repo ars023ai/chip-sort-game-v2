@@ -1,0 +1,20 @@
+const assert = require('node:assert/strict');
+const P = require('../session.js'), B = require('../balance.js'), S = require('../scenes.js');
+const session = P.create(1234);
+assert.deepEqual(P.validate(session, S, B), session);
+session.board[0] = [1,1,1]; session.tray[0] = [0,0,0,0]; session.started = true; session.moves = 2;
+session.score = 100; session.cleared = 10; session.elapsedMs = 123000;
+assert.deepEqual(P.validate(JSON.parse(JSON.stringify(session)), S, B), session);
+assert.throws(() => P.validate({ ...session, score: 101 }, S, B));
+assert.throws(() => P.validate({ ...session, elapsedMs: -1 }, S, B));
+assert.throws(() => P.validate({ ...session, activeCount: 17 }, S, B));
+assert.throws(() => P.validate({ ...session, board: Array.from({ length: 30 }, () => [6]) }, S, B));
+B.unlock(session, 60, 180); session.cleared = 60; session.score = 600;
+for (let i = 0; i < 3; i++) { session.introSlots[i] = B.nextIntro(session); session.tray[i] = Array(4).fill(4); }
+assert.deepEqual(P.validate(session, S, B), session);
+B.placedIntro(session, 4); session.introSlots[0] = null; session.tray[0] = [];
+assert.deepEqual(P.validate(session, S, B), session);
+assert.throws(() => P.validate({ ...session, introSlots: [null,null,null] }, S, B));
+assert.equal(P.write('test', 1), false, 'missing storage is safe and reported');
+assert.equal(P.read('test', 2), 2);
+console.log('PASS: save/resume, RNG state, score integrity, locked-brand rejection, introduction persistence');

@@ -1,21 +1,16 @@
-name: V2 regression
-on: [push, pull_request, workflow_dispatch]
+name: Cap Stack Sort regression
+on: [pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
-  rules:
+  regression:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --check rules.js
-      - run: node --check game.js
-      - run: node tests/rules.cjs
-      - name: Verify static entry point
-        run: |
-          test -s index.html
-          grep -q 'id="grid"' index.html
-          grep -q 'script src="rules.js' index.html
-          grep -q 'script src="game.js' index.html
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
