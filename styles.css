@@ -141,3 +141,5 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:man
 .compact-game:not(.mobile-game) .home-primary{margin-bottom:8px}
 .compact-game:not(.mobile-game) .home-links{margin-top:2px}
 .studio-guide{display:block;padding:11px 12px;margin:0 0 22px;border:1px solid #d3b46b66;border-radius:9px;color:#ffe2a0;text-decoration:none;background:#ffffff06;font-size:12px;line-height:1.5}.studio-guide:hover{background:#ffffff12}
+
+.game-app[data-preview='pressPortrait']{width:432px;height:768px}.game-app[data-preview='pressLandscape']{width:1280px;height:720px}.device-preview .game-app[data-preview^='press']{border-radius:0;box-shadow:none;margin:0}
