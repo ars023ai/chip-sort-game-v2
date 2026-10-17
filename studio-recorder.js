@@ -65,7 +65,9 @@
       $('#rewind-scene').click(); $('#clean-capture').click();
       const portrait = $('#capture-format').value === 'portrait', canvas = document.createElement('canvas');
       canvas.width = portrait ? 720 : 1280; canvas.height = portrait ? 1280 : 720;
-      paint(canvas,background,atlas,portrait); stream = canvas.captureStream(30);
+      paint(canvas,background,atlas,portrait); stream = canvas.captureStream(0);
+      let videoTrack = stream.getVideoTracks()[0];
+      if (!videoTrack.requestFrame) { videoTrack.stop(); stream = canvas.captureStream(30); videoTrack = stream.getVideoTracks()[0]; }
       for(const track of audioStream?.getAudioTracks() || [])stream.addTrack(track);
       recorder = new MediaRecorder(stream,{ mimeType:mime, videoBitsPerSecond:6000000 });
       const chunks = [], finished = new Promise((resolve,reject) => { recorder.ondataavailable = event => { if(event.data.size)chunks.push(event.data); };recorder.onstop=resolve;recorder.onerror=event=>reject(event.error||new Error('Video encoding failed.')); });
@@ -73,16 +75,16 @@
       recorder.start(250); const began = performance.now();
       const draw = () => {
         if(cancel || performance.now()>stopAt || performance.now()-began>27000){if(recorder.state!=='inactive')recorder.stop();return;}
-        paint(canvas,background,atlas,portrait);frame=requestAnimationFrame(draw);
+        paint(canvas,background,atlas,portrait);videoTrack.requestFrame?.();frame=setTimeout(draw,1000/30);
       };
-      frame=requestAnimationFrame(draw); $('#repeat-scene').click(); await finished;
+      videoTrack.requestFrame?.(); frame=setTimeout(draw,1000/30); $('#repeat-scene').click(); await finished;
       if(cancel)throw new Error('Recording cancelled. Keep the game tab open for the whole take.');
       const blob=new Blob(chunks,{type:mime.split(';')[0]}),url=URL.createObjectURL(blob),link=document.createElement('a');
       link.href=url;link.download='cap-stack-sort-'+(portrait?'portrait':'landscape')+'-'+Date.now()+'.'+extension;link.click();setTimeout(()=>URL.revokeObjectURL(url),30000);
       $('#studio-status').textContent=`Clip downloaded (${extension.toUpperCase()}). It uses the live game, current speed and scene score settings.`;
     } catch(error) { $('#studio-status').textContent=error.message||'Recording failed. Use your screen recorder.'; }
     finally {
-      cancelAnimationFrame(frame); if(recorder?.state==='recording')recorder.stop(); stream?.getTracks().forEach(track=>track.stop());window.CapAudio?.endCapture?.();indicator?.remove();$('#capture-exit').click();recording=false;action.disabled=false;
+      clearTimeout(frame); if(recorder?.state==='recording')recorder.stop(); stream?.getTracks().forEach(track=>track.stop());window.CapAudio?.endCapture?.();indicator?.remove();$('#capture-exit').click();recording=false;refresh();
     }
   });
 })();

@@ -16,7 +16,7 @@
     else { link.addEventListener('load', loaded, { once: true }); link.addEventListener('error', () => reject(new Error('Game styles did not load.')), { once: true }); }
   });
   const loadScript = file => new Promise((resolve, reject) => {
-    const script = document.createElement('script'); script.src = `${file}?v=${VERSION}`; script.async = false;
+    const script = document.createElement('script'); script.src = `${file}?v=${VERSION}&capture=2`; script.async = false;
     script.onload = () => { progress(); resolve(); }; script.onerror = () => reject(new Error('A game module did not load.'));
     document.body.append(script);
   });

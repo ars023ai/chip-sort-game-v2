@@ -82,6 +82,6 @@
   <script>
   window.capLoadError = function () { var box=document.getElementById('boot-screen'); box.hidden=false; document.getElementById('boot-title').textContent='The board could not load.'; document.getElementById('boot-text').textContent='Check your connection and try again.'; document.getElementById('boot-progress').hidden=true; var retry=document.getElementById('boot-retry'); retry.hidden=false; retry.onclick=function(){ location.reload(); }; };
   </script>
-  <script src="boot.js?v=2.2.1" defer onerror="capLoadError()"></script>
+  <script src="boot.js?v=2.2.1&amp;capture=2" defer onerror="capLoadError()"></script>
 </body>
 </html>
