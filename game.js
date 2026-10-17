@@ -7,7 +7,7 @@
     scoreCard: $('#score-card'), hint: $('#hint'), overlay: $('#overlay'), modal: $('.modal'),
     title: $('#modal-title'), eyebrow: $('#modal-eyebrow'), body: $('#modal-body'), actions: $('#modal-actions'),
     banner: $('#banner'), bannerTitle: $('#banner-title'), bannerText: $('#banner-text'), chain: $('#chain-flash'), announcer: $('#announcer') };
-  const creator = new URLSearchParams(location.search).get('creator') === '1';
+  const creator = window.CAP_CONFIG?.creator !== false && new URLSearchParams(location.search).get('creator') === '1';
   const savedOptions = P.read(P.OPTIONS_KEY, {});
   const options = { sound: savedOptions.sound !== false, tutorialDone: savedOptions.tutorialDone === true, motion: savedOptions.motion ?? !matchMedia('(prefers-reduced-motion: reduce)').matches };
   let best = Math.max(0, Math.min(1e12, Number(P.read(P.BEST_KEY, 0)) || 0));
@@ -36,6 +36,7 @@
     tick();
     if (paused) pauseReasons.add(reason); else pauseReasons.delete(reason);
     for (const animation of animations) { if (pauseReasons.size) animation.pause(); else animation.play(); }
+    window.CapAudio?.setSuspended?.(pauseReasons.size > 0);
     emit('pause');
   }
   function cancelRun() {
@@ -306,7 +307,10 @@
     const wasBest = session.score >= best && session.score > 0;
     openDialog('over', 'One more round?', wasBest ? 'A SCORE WORTH CHASING' : 'YOUR NEXT BEST IS WAITING',
       `<div class="result"><span>FINAL SCORE</span><strong>${session.score.toLocaleString('en-US')}</strong><small>${timeText(seconds())} · Best ${best.toLocaleString('en-US')}</small></div><div class="result-meta"><div><b>${session.cleared}</b><span>CAPS CLEARED</span></div><div><b>${session.activeCount}/16</b><span>BRANDS FOUND</span></div></div><p>Every cell is full. A fresh board, a new chance.</p>`,
-      [button('Play again', 'primary', startNew), button('Main menu', 'secondary', showHome), button('How to play', 'secondary', howTo)]);
+      [button('Play again', 'primary', async event => {
+        const node = event.currentTarget; node.disabled = true;
+        try { await window.CapPlatform?.interstitial(); } finally { node.disabled = false; startNew(); }
+      }), button('Main menu', 'secondary', showHome), button('How to play', 'secondary', howTo)]);
   }
   function optionsBody() {
     const container = document.createElement('div'); container.className = 'options';
@@ -394,8 +398,8 @@
     if (!busy) checkpoint(); renderCoach(); resize();
   }
   function about() {
-    openDialog('about', 'Made for good moves.', 'CAP STACK SORT · 2.1',
-      '<p>Built by ArsCorp. An endless puzzle with sixteen caps, a gentle start and a best score worth chasing.</p><p>Your round, best score and settings stay in this browser. This game has no account, advertising SDK or analytics SDK.</p><p><a class="dialog-link" href="privacy.html" target="_blank" rel="noopener">Privacy & support ↗</a></p>',
+    openDialog('about', 'Made for good moves.', 'CAP STACK SORT · 2.2',
+      '<p>Built by ArsCorp. An endless puzzle with sixteen caps, a gentle start and a best score worth chasing.</p><p>Your round, best score and settings stay on this device. ' + (window.CapPlatform?.target === 'yandex' ? 'This edition uses the Yandex Games SDK and advertising between completed rounds.' : 'This edition has no account, advertising SDK or analytics SDK.') + '</p><p><a class="dialog-link" href="privacy.html" target="_blank" rel="noopener">Privacy & support ↗</a></p>',
       [button('Back to menu', 'primary', closeDialog)]);
   }
   function loadScene(input) {
@@ -431,6 +435,9 @@
   $('#close-modal').addEventListener('click', () => { if (dialogKind === 'over') return; closeDialog(); });
   els.overlay.addEventListener('click', event => { if (event.target === els.overlay && dialogKind !== 'over') closeDialog(); });
   document.addEventListener('visibilitychange', () => { setPause('hidden', document.hidden); if (document.hidden && !creator && !busy) checkpoint(); });
+  window.addEventListener('blur', () => setPause('focus', true));
+  window.addEventListener('focus', () => setPause('focus', false));
+  $('#play-area').addEventListener('contextmenu', event => event.preventDefault());
   window.addEventListener('pagehide', () => { if (!creator) { tick(); if (!busy) checkpoint(); else P.write(P.SAVE_KEY, lastStable); } });
   document.addEventListener('keydown', event => {
     if (event.key === 'Tab' && !els.overlay.hidden) {
@@ -468,8 +475,9 @@
     snapshot: () => clone(session), status: () => ({ homeVisible, busy, editing, paused: pauseReasons.size > 0, selected, chainCount, picked: { ...editPicked }, move: clone(sceneMove), speed, multiplier }),
     loadScene, editStack, preparePlay, place, returnHome: showHome, startNew, pick(kind, index) { editPicked = { kind, index }; render(); emit('pick'); },
     setMove(move) { sceneMove = move; render(); }, setEditing(value) { if (busy) return; editing = value; if (value && sceneMove && (session.board[sceneMove.index].length || !session.tray[sceneMove.slot].length)) sceneMove = null; setPause('manual', false); render(); },
-    pause(value) { setPause('manual', value); }, setSpeed(value) { tick(); speed = value; animations.forEach(animation => { animation.playbackRate = speed; }); emit('speed'); },
+    pause(value) { setPause('manual', value); }, externalPause(reason, value) { setPause('external:' + reason, value); }, setSpeed(value) { tick(); speed = value; animations.forEach(animation => { animation.playbackRate = speed; }); emit('speed'); },
     setMultiplier(value) { multiplier = value; }, setScore(value) { session.score = value; checkpoint(); renderHud(); },
     setSound(value) { options.sound = value; P.write(P.OPTIONS_KEY, options); }, showBanner, resize,
     exportScene(name) { const move = sceneMove && !session.board[sceneMove.index].length && session.tray[sceneMove.slot].length ? clone(sceneMove) : null; return S.validate({ version: 1, name, seed: session.seed, score: session.score, elapsed: seconds(), board: clone(session.board), tray: clone(session.tray), playback: { speed, multiplier }, move }); } };
+  window.CapPlatform?.attach(window.CapGame);
 })();

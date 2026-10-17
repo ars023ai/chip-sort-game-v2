@@ -1,10 +1,10 @@
 (function () {
   'use strict';
-  let enabled = true;
+  let enabled = true, suspended = false;
   function audioCtx(){if(!enabled)return null;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;try{const ctx=audioCtx.ctx||(audioCtx.ctx=new AC());if(ctx.state==='suspended')ctx.resume();return ctx}catch{return null}}
   function tone(freq,dur=.06,gain=.025,type='triangle',delay=0,endFreq=freq){const ctx=audioCtx();if(!ctx)return;const t=ctx.currentTime+delay,o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(Math.max(40,freq),t);o.frequency.exponentialRampToValueAtTime(Math.max(40,endFreq),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+dur+.015)}
   function noise(dur=.05,gain=.012,delay=0,highpass=900){const ctx=audioCtx();if(!ctx)return;const length=Math.max(1,Math.floor(ctx.sampleRate*dur)),buffer=ctx.createBuffer(1,length,ctx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*(1-i/length);const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),g=ctx.createGain(),t=ctx.currentTime+delay;filter.type='highpass';filter.frequency.value=highpass;g.gain.setValueAtTime(gain,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);src.buffer=buffer;src.connect(filter);filter.connect(g);g.connect(ctx.destination);src.start(t)}
-  function sfx(name,pitch=0){if(!enabled)return;const r=()=>Math.random()*18-9;switch(name){
+  function sfx(name,pitch=0){if(!enabled || suspended)return;const r=()=>Math.random()*18-9;switch(name){
     case'ui':tone(520,.045,.018,'sine',0,610);break;
     case'select':tone(360+r(),.055,.022,'triangle',0,510);noise(.025,.006,0,1500);break;
     case'pickup':tone(260,.07,.02,'triangle',0,390);noise(.045,.007,0,1200);break;
@@ -23,5 +23,9 @@
     case'reset':tone(330,.09,.02,'triangle',0,520);tone(660,.11,.016,'sine',.07,820);break;
   }}
 
-  window.CapAudio = { play: sfx, setEnabled(value) { enabled = value; } };
+  window.CapAudio = { play: sfx, setEnabled(value) { enabled = value; }, setSuspended(value) {
+    suspended = value;
+    const ctx = audioCtx.ctx;
+    if (ctx && ctx.state !== 'closed') { try { const task = value ? ctx.suspend() : ctx.resume(); task?.catch?.(() => {}); } catch {} }
+  } };
 })();

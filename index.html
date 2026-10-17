@@ -7,11 +7,13 @@
   <meta name="description" content="One small move. A whole cascade. Stack matching bottle caps, chase your best score, and discover 16 brands.">
   <meta property="og:title" content="Cap Stack Sort">
   <meta property="og:description" content="Same caps. Bigger chains. A relaxed start and a score worth chasing.">
-  <meta property="og:image" content="assets/reference-approved-b-v4.webp">
+  <meta property="og:image" content="https://ars023ai.github.io/chip-sort-game-v2/assets/social-preview.webp">
   <title>Cap Stack Sort</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/app-icon-192.png">
+  <link rel="icon" href="assets/app-icon-192.png" type="image/png">
   <link rel="preload" href="assets/master-caps-red-rull-v1.webp" as="image">
-  <link id="game-styles" rel="stylesheet" href="styles.css?v=2.1.2" onload="this.dataset.loaded='true'" onerror="this.dataset.failed='true'">
+  <link id="game-styles" rel="stylesheet" href="styles.css?v=2.2.0" onload="this.dataset.loaded='true'" onerror="this.dataset.failed='true'">
 <style>.boot-screen{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#233328;color:#f4e7c6;font:16px Arial;text-align:center;padding:24px}.boot-screen[hidden]{display:none}.boot-content{max-width:350px}.boot-mark{font-weight:900;font-size:48px;line-height:.9}.boot-mark span{display:block;color:#ffd270}.boot-mark small{display:block;font-size:22px;letter-spacing:.14em;margin:10px 0 28px}.boot-content progress{width:100%;height:7px;accent-color:#ffd270}.boot-content button{margin-top:20px;padding:14px 28px;border:0;border-radius:12px}</style>
 </head>
 <body>
@@ -55,7 +57,7 @@
         <button id="home-continue" class="primary home-primary" hidden>Continue</button>
         <button id="home-play" class="primary home-primary">Play</button>
         <div class="home-links"><button class="secondary" id="home-help">How to play</button><button class="secondary" id="home-settings">Settings</button></div>
-        <div class="home-footer"><button id="home-about">About & privacy</button><span>ArsCorp · 2.1</span></div>
+        <div class="home-footer"><button id="home-about">About & privacy</button><span>ArsCorp · 2.2</span></div>
       </div>
     </div>
   </section>
@@ -80,6 +82,6 @@
   <script>
   window.capLoadError = function () { var box=document.getElementById('boot-screen'); box.hidden=false; document.getElementById('boot-title').textContent='The board could not load.'; document.getElementById('boot-text').textContent='Check your connection and try again.'; document.getElementById('boot-progress').hidden=true; var retry=document.getElementById('boot-retry'); retry.hidden=false; retry.onclick=function(){ location.reload(); }; };
   </script>
-  <script src="boot.js?v=2.1.2" defer onerror="capLoadError()"></script>
+  <script src="boot.js?v=2.2.0" defer onerror="capLoadError()"></script>
 </body>
 </html>
