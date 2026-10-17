@@ -1,3 +1,14 @@
 node_modules
 dist/
 *.log
+dist-yandex/
+release-kit/
+mobile/www/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/**/build/
+mobile/ios/App/Pods/
+mobile/ios/App/App/public/
+mobile/ios/App/App/capacitor.config.json
+*.keystore
+*.jks

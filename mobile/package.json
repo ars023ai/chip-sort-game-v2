@@ -1,0 +1,21 @@
+{
+  "name": "cap-stack-sort-mobile",
+  "version": "2.2.0",
+  "private": true,
+  "scripts": {
+    "prepare:web": "node ../scripts/build.cjs --target=mobile && node bundle.cjs",
+    "sync": "npm run prepare:web && cap sync",
+    "android": "cap open android",
+    "ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3",
+    "esbuild": "0.28.2"
+  }
+}

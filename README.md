@@ -1,4 +1,4 @@
-# Cap Stack Sort · 2.1
+# Cap Stack Sort · 2.2
 
 A static bottle-cap puzzle with an endless game and a separate Creator Studio. The approved warm tabletop, molded board and graphite Next tray are retained. The same composition is cropped into a large portrait game on phones.
 
@@ -72,18 +72,16 @@ npm run simulate
 
 `dist/` contains only the fifteen production files. GitHub Pages publishes this folder after all regression tests pass. Tests cover thresholds, buried layers, adjacency, progression and intro persistence, rescue probabilities, 300 scene variations, JSON links, storage validation, pause/resume, cancellation during placement/merge/clear, editor undo, Super Score isolation, the frozen Game Over timer, home/continue/restart transitions, first-clear coaching, loader failures, nine viewport sizes, safe-area reservations and cap containment.
 
-Version: 2.1.2 · October 13, 2026.
+Version: 2.2.0 · October 17, 2026.
 
-## Release assessment
+## Publishing editions - 2.2.0
 
-This repository produces a playable public web build. It does not yet contain a signed Android App Bundle, an Xcode/iOS project or a signed App Store build. Publishing GitHub Pages does not produce either store package.
+- `npm run build`: ad-free web game and Creator Studio. Russian creator instructions live at `creator-guide.html`; clean capture supports Space to start/repeat a take.
+- `npm run build:yandex`: `dist-yandex/`, ready to ZIP with index.html at its root. Official /sdk.js loading, SDK init, language detection with English fallback, Game Ready after real loading, Gameplay start/stop, platform pause/resume, and an interstitial request on Play again after Game Over. First request and successive requests are at least 180 seconds apart. The platform may decline ads. Errors preserve the next round; an opened ad suspends game time, animations and sound until it closes. Creator Studio is disabled even with ?creator=1. No login, purchases or cloud saves.
+- `mobile/`: Capacitor Android and iOS projects with local resources, branded icons/splash and native lifecycle. See mobile/README.md. GitHub Actions compiles an Android debug APK and unsigned release AAB; it does not sign a production release. iOS compilation/signing requires Xcode and an Apple developer team.
 
-Before a store release:
+Public web privacy, native privacy and Yandex privacy are separate. The SDK integration has automated mocked tests; actual Yandex draft/debug and advert delivery must be verified in the publisher account. Native device tests and App Store screenshots remain required. Store review is separate from CI.
 
-1. Package the bundled game for Android and iOS, integrate platform lifecycle/save behavior, define a stable application identifier and release signing, and keep Creator Studio out of the player package or disclose it for review. A store package should include its assets and launch offline.
-2. Run on physical Android phones and iPhones, including safe-area layouts, touch dragging, audio activation, background/foreground, installation/update, and offline launch. Browser frame inspection and automated layout checks do not verify those platform behaviors.
-3. Replace third-party cap trademarks with original artwork, or document permission to use them. The final energy cap is the approved fictional RED RULL, silver-blue with an original angular R mark. Its real-brand reference name and bull/sun emblem are not part of the production atlas. A fictional name alone is not a legal clearance for other reference-inspired cap artwork.
-4. Prepare original app icons, real gameplay screenshots, store descriptions, age-rating answers, a support contact and platform privacy/Data safety disclosures that match the actual packaged application. Creator Super Score footage should not misrepresent ordinary scoring.
-5. Playtest longer human runs through the later unlocks. Automated policies currently stop below the final brand threshold, so late progression is not yet supported by human-play evidence.
+The publishing kit contains original promotional illustrations and actual browser gameplay screenshots/video, text fields, scene JSON, social assets and Russian guides. Promotional illustrations are not gameplay screenshots. Web reference captures do not prove native-device behavior. Super Score is creator-only and is disabled in standard store footage.
 
-Official submission references: [Apple App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/), [Google Play testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465), [Android target API requirements](https://support.google.com/googleplay/android-developer/answer/11926878), and [Google Play User Data policy](https://support.google.com/googleplay/android-developer/answer/10144311). Verify the applicable deadlines and account requirements at submission time. Store acceptance is a separate review and is not guaranteed by this build.
+Artwork provenance: the approved cap atlas still contains reference-inspired fictional drink identities. Renaming a mark does not establish rights clearance; obtain permission or commission independent cap identities before asserting commercial rights to all artwork. RED RULL uses the approved original R emblem, not a bull/sun mark.

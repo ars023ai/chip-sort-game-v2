@@ -1,0 +1,8 @@
+{
+  "appId": "com.arscorp.capstacksort",
+  "appName": "Cap Stack Sort",
+  "webDir": "www",
+  "backgroundColor": "#213427",
+  "android": { "allowMixedContent": false, "backgroundColor": "#213427" },
+  "ios": { "backgroundColor": "#213427", "contentInset": "never" }
+}

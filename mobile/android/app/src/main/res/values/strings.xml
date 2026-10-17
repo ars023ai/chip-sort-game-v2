@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Cap Stack Sort</string>
+    <string name="title_activity_main">Cap Stack Sort</string>
+    <string name="package_name">com.arscorp.capstacksort</string>
+    <string name="custom_url_scheme">com.arscorp.capstacksort</string>
+</resources>

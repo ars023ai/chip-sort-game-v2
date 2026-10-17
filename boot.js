@@ -1,7 +1,7 @@
 (function () {
   'use strict';
-  const VERSION = '2.1.2', $ = id => document.getElementById(id);
-  const modules = ['rules.js', 'balance.js', 'scenes.js', 'session.js', 'layout.js', 'sound.js'];
+  const VERSION = '2.2.0', $ = id => document.getElementById(id);
+  const modules = ['rules.js', 'balance.js', 'scenes.js', 'session.js', 'layout.js', 'sound.js', 'platform.js'];
   const assets = ['assets/master-caps-red-rull-v1.webp', 'assets/reference-approved-b-v4.webp'];
   const query = new URLSearchParams(location.search), preview = query.get('preview');
   if (['phone', 'small', 'tablet', 'landscape'].includes(preview)) { document.body.classList.add('device-preview'); $('app').dataset.preview = preview; }
@@ -33,11 +33,15 @@
       await Promise.all([loadStyles(), ...modules.map(loadScript), ...assets.map(loadImage)]);
       if (failed) return;
       $('boot-text').textContent = 'Opening your game…';
-      await loadScript('game.js'); await loadScript('studio.js');
+      await window.CapPlatform.init();
+      await loadScript('game.js');
+      if (window.CAP_CONFIG?.creator !== false) await loadScript('studio.js');
       if (failed || !window.CapGame) throw new Error('Game initialization failed.');
       clearTimeout(timeout); window.removeEventListener('error', failure);
       $('boot-progress').value = 100; $('boot-screen').hidden = true;
       window.CapGame.resize();
+      window.CapPlatform.ready();
+      window.dispatchEvent(new Event('cap-game-ready'));
     } catch { failure(); }
   })();
 })();

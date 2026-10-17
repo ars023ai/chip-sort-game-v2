@@ -10,6 +10,7 @@
     <div class="eyebrow">CAP STACK SORT / CREATOR</div>
     <h2>Make a great move.</h2>
     <p class="subtitle">Build the moment. Hit play. Get the shot.</p>
+    <a class="studio-guide" href="creator-guide.html" target="_blank" rel="noopener">Инструкция на русском · быстрый старт ↗</a>
     <section class="studio-section">
       <div class="section-title">01 / SCENE <span class="chip">LOCAL STUDIO</span></div>
       <label for="scene-name">Scene name</label><input id="scene-name" maxlength="80" value="Soda cascade">
@@ -189,6 +190,11 @@
   $('#clean-capture').addEventListener('click', () => capture(true));
   $('#capture-play').addEventListener('click', () => { capture(true); play(true); });
   $('#capture-exit').addEventListener('click', () => capture(false));
+  document.addEventListener('keydown', event => {
+    if (event.code !== 'Space' || !document.body.classList.contains('capture-mode') || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
+    event.preventDefault();
+    if (!G.status().busy) play(true);
+  });
   $('#save-scene').addEventListener('click', () => safely(() => {
     const scene = sceneForSaving(), records = library().filter(record => record.name !== scene.name); records.unshift(scene);
     if (!P.write(SAVES_KEY, records.slice(0, 30))) throw new Error('Browser storage is unavailable. Download JSON to keep this scene.');
