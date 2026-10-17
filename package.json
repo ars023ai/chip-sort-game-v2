@@ -1,6 +1,6 @@
 {
   "name": "cap-stack-sort",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "scripts": {
     "test": "node tests/rules.cjs && node tests/progression.cjs && node tests/scenes.cjs && node tests/session.cjs && node tests/lifecycle.cjs && node tests/layout.cjs && node tests/boot.cjs && node tests/platform.cjs",
@@ -9,5 +9,7 @@
     "build:mobile": "node scripts/build.cjs --target=mobile",
     "simulate": "node tests/balance-sim.cjs"
   },
-  "devDependencies": { "jsdom": "26.1.0" }
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
 }

@@ -13,8 +13,8 @@ const root=path.resolve(__dirname,'..'),kit=path.join(root,'release-kit'),icon=p
  for(const folder of fs.readdirSync(res)){const p=path.join(res,folder,'splash.png');if(!fs.existsSync(p))continue;const {width,height}=await sharp(p).metadata(),s=Math.round(Math.min(width,height)*.40);await sharp({create:{width,height,channels:3,background:'#213427'}}).composite([{input:await sharp(icon).resize(s,s).png().toBuffer(),gravity:'centre'}]).png().toFile(p+'.new.png');fs.renameSync(p+'.new.png',p);}
  const xc=path.join(root,'mobile/ios/App/App/Assets.xcassets');fs.copyFileSync(icon,path.join(xc,'AppIcon.appiconset/AppIcon-512@2x.png'));
  for(const f of fs.readdirSync(path.join(xc,'Splash.imageset'))){if(!f.endsWith('.png'))continue;const p=path.join(xc,'Splash.imageset',f),s=900;await sharp({create:{width:2732,height:2732,channels:3,background:'#213427'}}).composite([{input:await sharp(icon).resize(s,s).png().toBuffer(),gravity:'centre'}]).png().toFile(p);}
- const gd=path.join(root,'mobile/android/app/build.gradle');fs.writeFileSync(gd,fs.readFileSync(gd,'utf8').replace('versionName "1.0"','versionName "2.2.0"'));
+ const gd=path.join(root,'mobile/android/app/build.gradle');fs.writeFileSync(gd,fs.readFileSync(gd,'utf8').replace('versionName "1.0"','versionName "2.2.1"'));
  const manifest=path.join(root,'mobile/android/app/src/main/AndroidManifest.xml');fs.writeFileSync(manifest,fs.readFileSync(manifest,'utf8').replace('android:allowBackup="true"','android:allowBackup="false"'));
- const project=path.join(root,'mobile/ios/App/App.xcodeproj/project.pbxproj');fs.writeFileSync(project,fs.readFileSync(project,'utf8').replaceAll('MARKETING_VERSION = 1.0;','MARKETING_VERSION = 2.2.0;'));
+ const project=path.join(root,'mobile/ios/App/App.xcodeproj/project.pbxproj');fs.writeFileSync(project,fs.readFileSync(project,'utf8').replaceAll('MARKETING_VERSION = 1.0;','MARKETING_VERSION = 2.2.1;'));
  console.log('PASS: store/media file sizes optimized; maskable safe margin; Android/iOS icons, splash and versions prepared');
 })();

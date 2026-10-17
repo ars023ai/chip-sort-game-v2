@@ -4,7 +4,7 @@ const target = process.argv.find(arg => arg.startsWith('--target='))?.split('=')
 if (!['web','yandex','mobile'].includes(target)) throw new Error('Use web, yandex or mobile.');
 const creator = target === 'web';
 const out = path.join(root, target === 'mobile' ? 'mobile/www' : target === 'yandex' ? 'dist-yandex' : 'dist');
-const scripts = ['boot.js','platform.js','layout.js','rules.js','balance.js','scenes.js','session.js','sound.js','game.js',...(creator ? ['studio.js'] : [])];
+const scripts = ['boot.js','platform.js','layout.js','rules.js','balance.js','scenes.js','session.js','sound.js','game.js',...(creator ? ['studio.js','studio-recorder.js'] : [])];
 for (const file of scripts) execFileSync(process.execPath, ['--check', path.join(root, file)]);
 const files = ['index.html','privacy.html','styles.css',...scripts,'assets/master-caps-red-rull-v1.webp','assets/reference-approved-b-v4.webp','assets/favicon.svg',
   'assets/app-icon-192.png','assets/app-icon-512.png','assets/social-preview.webp',...(creator ? ['creator-guide.html','downloads.html'] : [])];

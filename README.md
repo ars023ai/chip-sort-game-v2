@@ -72,11 +72,11 @@ npm run simulate
 
 `dist/` contains only the fifteen production files. GitHub Pages publishes this folder after all regression tests pass. Tests cover thresholds, buried layers, adjacency, progression and intro persistence, rescue probabilities, 300 scene variations, JSON links, storage validation, pause/resume, cancellation during placement/merge/clear, editor undo, Super Score isolation, the frozen Game Over timer, home/continue/restart transitions, first-clear coaching, loader failures, nine viewport sizes, safe-area reservations and cap containment.
 
-Version: 2.2.0 · October 17, 2026.
+Version: 2.2.1 · October 17, 2026.
 
-## Publishing editions - 2.2.0
+## Publishing editions - 2.2.1
 
-- `npm run build`: ad-free web game and Creator Studio. Russian creator instructions live at `creator-guide.html`; clean capture supports Space to start/repeat a take.
+- `npm run build`: ad-free web game and Creator Studio. Russian creator instructions live at `creator-guide.html`; clean capture supports Space to start/repeat a take. Record & download exports the live game cap positions/animations and synthesized game audio through Canvas/MediaRecorder; it requests no screen or microphone access.
 - `npm run build:yandex`: `dist-yandex/`, ready to ZIP with index.html at its root. Official /sdk.js loading, SDK init, language detection with English fallback, Game Ready after real loading, Gameplay start/stop, platform pause/resume, and an interstitial request on Play again after Game Over. First request and successive requests are at least 180 seconds apart. The platform may decline ads. Errors preserve the next round; an opened ad suspends game time, animations and sound until it closes. Creator Studio is disabled even with ?creator=1. No login, purchases or cloud saves.
 - `mobile/`: Capacitor Android and iOS projects with local resources, branded icons/splash and native lifecycle. See mobile/README.md. GitHub Actions compiles an Android debug APK and unsigned release AAB; it does not sign a production release. iOS compilation/signing requires Xcode and an Apple developer team.
 

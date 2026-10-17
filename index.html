@@ -13,7 +13,7 @@
   <link rel="apple-touch-icon" href="assets/app-icon-192.png">
   <link rel="icon" href="assets/app-icon-192.png" type="image/png">
   <link rel="preload" href="assets/master-caps-red-rull-v1.webp" as="image">
-  <link id="game-styles" rel="stylesheet" href="styles.css?v=2.2.0" onload="this.dataset.loaded='true'" onerror="this.dataset.failed='true'">
+  <link id="game-styles" rel="stylesheet" href="styles.css?v=2.2.1" onload="this.dataset.loaded='true'" onerror="this.dataset.failed='true'">
 <style>.boot-screen{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#233328;color:#f4e7c6;font:16px Arial;text-align:center;padding:24px}.boot-screen[hidden]{display:none}.boot-content{max-width:350px}.boot-mark{font-weight:900;font-size:48px;line-height:.9}.boot-mark span{display:block;color:#ffd270}.boot-mark small{display:block;font-size:22px;letter-spacing:.14em;margin:10px 0 28px}.boot-content progress{width:100%;height:7px;accent-color:#ffd270}.boot-content button{margin-top:20px;padding:14px 28px;border:0;border-radius:12px}</style>
 </head>
 <body>
@@ -82,6 +82,6 @@
   <script>
   window.capLoadError = function () { var box=document.getElementById('boot-screen'); box.hidden=false; document.getElementById('boot-title').textContent='The board could not load.'; document.getElementById('boot-text').textContent='Check your connection and try again.'; document.getElementById('boot-progress').hidden=true; var retry=document.getElementById('boot-retry'); retry.hidden=false; retry.onclick=function(){ location.reload(); }; };
   </script>
-  <script src="boot.js?v=2.2.0" defer onerror="capLoadError()"></script>
+  <script src="boot.js?v=2.2.1" defer onerror="capLoadError()"></script>
 </body>
 </html>

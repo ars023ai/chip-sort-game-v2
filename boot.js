@@ -1,12 +1,12 @@
 (function () {
   'use strict';
-  const VERSION = '2.2.0', $ = id => document.getElementById(id);
+  const VERSION = '2.2.1', $ = id => document.getElementById(id);
   const modules = ['rules.js', 'balance.js', 'scenes.js', 'session.js', 'layout.js', 'sound.js', 'platform.js'];
   const assets = ['assets/master-caps-red-rull-v1.webp', 'assets/reference-approved-b-v4.webp'];
   const query = new URLSearchParams(location.search), preview = query.get('preview');
   if (['phone', 'small', 'tablet', 'landscape', 'pressPortrait', 'pressLandscape'].includes(preview)) { document.body.classList.add('device-preview'); $('app').dataset.preview = preview; }
   let done = 0, timeout, failed = false;
-  const total = modules.length + assets.length + 3;
+  const total = modules.length + assets.length + 3 + (query.get('creator') === '1' && window.CAP_CONFIG?.creator !== false ? 1 : 0);
   const progress = () => { $('boot-progress').value = Math.round(++done / total * 100); };
   const loadStyles = () => new Promise((resolve, reject) => {
     const link = $('game-styles');
@@ -36,6 +36,7 @@
       await window.CapPlatform.init();
       await loadScript('game.js');
       if (window.CAP_CONFIG?.creator !== false) await loadScript('studio.js');
+      if (window.CapGame?.creator) await loadScript('studio-recorder.js');
       if (failed || !window.CapGame) throw new Error('Game initialization failed.');
       clearTimeout(timeout); window.removeEventListener('error', failure);
       $('boot-progress').value = 100; $('boot-screen').hidden = true;
